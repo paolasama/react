@@ -1,0 +1,45 @@
+# Ignorar dependencias de Node (para backend y frontend)
+**/node_modules/
+# Ignorar archivos de entorno (backend y frontend)
+**/.env
+# Ignorar archivos package.json y package-lock.json (backend y frontend)
+**/.package-lock.json
+**/.package.json
+# Archivos de log
+logs/
+**/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# Ignorar compilaciones locales
+.DS_Store
+# Ignorar cachés
+.cache/
+=======
+# Ignorar compilaciones locales
+.DS_Store
+# Ignorar cachés
+.cache/
+# Archivos específicos de IDEs/editor
+.idea/
+.vscode/
+*.swp
+# Archivos generados por el sistema operativo
+Thumbs.db
+desktop.ini
+# Archivos de compilación (si usas build para frontend)
+**/dist/
+**/build/
+# Ignorar otros archivos innecesarios
+*.tmp
+*.temp
+=======
+# Archivos generados por el sistema operativo
+Thumbs.db
+desktop.ini
+# Archivos de compilación (si usas build para frontend)
+**/dist/
+**/build/
+# Ignorar otros archivos innecesarios
+*.tmp
+*.temp
