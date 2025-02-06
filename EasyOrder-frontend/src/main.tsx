@@ -4,7 +4,7 @@ import EasyOrderRoutes from './routes/EasyOrderRoutes'; // Asegúrate de que la 
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
-  <React.StrictMode>
-    <EasyOrderRoutes /> {/* Aquí se renderizan las rutas */}
-  </React.StrictMode>
+    <React.StrictMode>
+        <EasyOrderRoutes /> {/* Aquí se renderizan las rutas */}
+    </React.StrictMode>
 );

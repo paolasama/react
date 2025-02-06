@@ -6,7 +6,7 @@
  */
 
 import React, { FunctionComponent, useState } from 'react';
-import { TextField, Button, Box, CircularProgress, Alert, Switch, FormControlLabel } from '@mui/material';
+import { TextField, Button, Box, CircularProgress, Alert, } from '@mui/material';//Switch, FormControlLabel 
 
 // Servicios propios
 import servicioRestaurante, { RestauranteProps, NuevoRestauranteProps } from '../../../services/Administrador/servicioRestaurante';
@@ -20,7 +20,7 @@ const RestauranteForm: FunctionComponent<Props> = ({ alAgregarRestaurante }) => 
     // Hooks -> Uso de estados
     const [nombre, setNombre] = useState('');
     const [direccion, setDireccion] = useState('');
-    const [activo, setActivo] = useState(true);
+    //const [activo, setActivo] = useState(true);
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -52,7 +52,7 @@ const RestauranteForm: FunctionComponent<Props> = ({ alAgregarRestaurante }) => 
     const limpiarFormulario = () => {
         setNombre('');
         setDireccion('');
-        setActivo(true);
+        //setActivo(true);
     };
 
     return (
