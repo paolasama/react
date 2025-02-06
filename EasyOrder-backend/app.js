@@ -5,8 +5,7 @@ const cors = require('cors');
 
 const db = require('./models');
 const errorHandler = require('./middlewares/errorHandler');
-const restauranteRoutes = require('./routes/restauranteRoutes');
-const menuRoutes = require('./routes/menuRoutes'); // Verifica que esta línea esté correctamente
+const restauranteRoutes = require('./routes/restauranteRoutes'); // Archivo que sí existe
 
 dotenv.config();
 
@@ -19,14 +18,17 @@ app.use(express.json());
 
 // Rutas
 app.use('/api/restaurantes', restauranteRoutes);
-app.use('/api/menus', menuRoutes);  // Esta ruta debe estar correctamente configurada
 
 // Manejo de errores
 app.use(errorHandler);
 
-// Sincronización de la base de datos
+// Sincronización de la base de datos y arranque del servidor
 db.sequelize
-  .sync({ force: false })
+  .authenticate()
+  .then(() => {
+    console.log('Conexión a la base de datos exitosa.');
+    return db.sequelize.sync({ force: false }); // Sincroniza los modelos con la base de datos
+  })
   .then(() => {
     console.log('Base de datos sincronizada correctamente.');
     const PORT = process.env.PORT || 3000;
@@ -35,7 +37,7 @@ db.sequelize
     });
   })
   .catch((error) => {
-    console.error('Error al sincronizar la base de datos:', error);
+    console.error('Error al conectar con la base de datos:', error);
   });
 
 module.exports = app;
