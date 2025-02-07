@@ -10,6 +10,7 @@ import {
     Paper,
     Button,
 } from '@mui/material';
+import { Edit, Delete } from '@mui/icons-material';
 
 const MesaList: React.FC = () => {
     const mesas = [
@@ -19,23 +20,26 @@ const MesaList: React.FC = () => {
     ];
 
     return (
-        <TableContainer component={Paper} sx={{ marginTop: 3 }}>
-            <Typography variant="h6" sx={{ padding: 2 }}>
-                Listado de Mesas
+        <TableContainer component={Paper} sx={{ marginTop: 3, borderRadius: 3, boxShadow: 3 }}>
+            <Typography
+                variant="h5"
+                sx={{ padding: 2, fontWeight: 'bold', backgroundColor: '#fff8e1', textAlign: 'center' }}
+            >
+                🍽️ Listado de Mesas 🍽️
             </Typography>
             <Table>
                 <TableHead>
-                    <TableRow>
-                        <TableCell align="left">ID</TableCell>
-                        <TableCell align="left">Nombre</TableCell>
-                        <TableCell align="left">Capacidad</TableCell>
-                        <TableCell align="left">Restaurante</TableCell>
-                        <TableCell align="center">Acciones</TableCell>
+                    <TableRow sx={{ backgroundColor: '#ffe0b2' }}>
+                        <TableCell align="left"><strong>ID</strong></TableCell>
+                        <TableCell align="left"><strong>Nombre</strong></TableCell>
+                        <TableCell align="left"><strong>Capacidad</strong></TableCell>
+                        <TableCell align="left"><strong>Restaurante</strong></TableCell>
+                        <TableCell align="center"><strong>Acciones</strong></TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {mesas.map((mesa) => (
-                        <TableRow key={mesa.id}>
+                        <TableRow key={mesa.id} hover>
                             <TableCell align="left">{mesa.id}</TableCell>
                             <TableCell align="left">{mesa.nombre}</TableCell>
                             <TableCell align="left">{mesa.capacidad}</TableCell>
@@ -43,13 +47,20 @@ const MesaList: React.FC = () => {
                             <TableCell align="center">
                                 <Button
                                     variant="contained"
-                                    color="primary"
+                                    color="secondary"
                                     size="small"
-                                    sx={{ marginRight: 1 }}
+                                    startIcon={<Edit />}
+                                    sx={{ marginRight: 1, fontWeight: 'bold', borderRadius: 2 }}
                                 >
                                     Editar
                                 </Button>
-                                <Button variant="outlined" color="error" size="small">
+                                <Button
+                                    variant="outlined"
+                                    color="error"
+                                    size="small"
+                                    startIcon={<Delete />}
+                                    sx={{ fontWeight: 'bold', borderRadius: 2 }}
+                                >
                                     Eliminar
                                 </Button>
                             </TableCell>

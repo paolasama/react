@@ -59,11 +59,11 @@ const styles = {
         background: '#2196f3',
         color: '#fff',
         padding: '10px',
-        border: '1px solid #ccc',
+        border: '1px solid #ddd',
     },
     td: {
         padding: '10px',
-        border: '1px solid #ccc',
+        border: '1px solid #ddd',
     },
     button: {
         padding: '5px 10px',

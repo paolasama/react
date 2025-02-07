@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
 
-const Restaurante = sequelize.define('Restaurante', {
+const Sucursal = sequelize.define('Sucursal', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -15,6 +15,15 @@ const Restaurante = sequelize.define('Restaurante', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    restauranteId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Restaurantes', // Debe coincidir con el nombre del modelo
+            key: 'id',
+        },
+        onDelete: 'CASCADE',
+    },
 });
 
-module.exports = Restaurante;
+module.exports = Sucursal;
