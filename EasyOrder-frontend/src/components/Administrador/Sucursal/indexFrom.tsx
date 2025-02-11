@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Box, TextField, Button, Typography, Paper, Select, InputLabel, FormControl, MenuItem } from '@mui/material';
-import StoreIcon from '@mui/icons-material/Store';
+import servicioSucursal from '../../../services/Administrador/servicioSucursal'; // Asegúrate de que la ruta sea correcta
 
 type Restaurante = {
     id: number;
@@ -17,6 +17,7 @@ const SucursalForm = () => {
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
+        // Obtener la lista de restaurantes para mostrar en el select
         axios.get('http://localhost:3000/api/restaurantes')
             .then(response => setRestaurantes(response.data))
             .catch(error => console.error("❌ Error al cargar restaurantes:", error));
@@ -35,59 +36,23 @@ const SucursalForm = () => {
         setSuccess(false);
 
         try {
-            const response = await axios.post('http://localhost:3000/api/sucursales', {
-                nombre,
-                direccion,
-                restauranteId: Number(restauranteId),
-            });
-
-            console.log("✅ Sucursal creada:", response.data);
+            const sucursalData = { nombre, direccion, restauranteId: Number(restauranteId) };
+            const response = await servicioSucursal.postSucursal(sucursalData);
             setSuccess(true);
             setNombre('');
             setDireccion('');
             setRestauranteId('');
-
+            console.log("✅ Sucursal creada:", response);
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.error("❌ Error al crear la sucursal:", error.response?.data || error.message);
-                setError(error.response?.data?.message || "Error desconocido");
-            } else {
-                console.error("❌ Error inesperado:", error);
-                setError("Error inesperado al registrar la sucursal");
-            }
+            console.error("❌ Error al crear la sucursal:", error);
+            setError("Error al crear la sucursal");
         }
     };
 
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                backgroundColor: '#f4f6f8',
-                minHeight: '50vh',
-                paddingTop: 4,
-            }}
-        >
-            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 4, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <StoreIcon sx={{ fontSize: 40, color: "#1565c0" }} />
-                Gestión de Sucursales
-            </Typography>
-
-            <Paper
-                elevation={4}
-                sx={{
-                    padding: 4,
-                    borderRadius: 3,
-                    backgroundColor: '#fff',
-                    textAlign: 'center',
-                    width: 400,
-                }}
-            >
-                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1565c0' }}>
-                    Nueva Sucursal
-                </Typography>
-
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 4 }}>
+            <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>Registrar Nueva Sucursal</Typography>
+            <Paper elevation={4} sx={{ padding: 4, borderRadius: 3, backgroundColor: '#fff', width: 400, textAlign: 'center' }}>
                 <form onSubmit={handleSubmit}>
                     <TextField
                         label="Nombre de la Sucursal"
@@ -95,7 +60,7 @@ const SucursalForm = () => {
                         variant="outlined"
                         value={nombre}
                         onChange={(e) => setNombre(e.target.value)}
-                        sx={{ mt: 2, backgroundColor: '#fff' }}
+                        sx={{ mt: 2 }}
                     />
                     <TextField
                         label="Dirección"
@@ -103,9 +68,8 @@ const SucursalForm = () => {
                         variant="outlined"
                         value={direccion}
                         onChange={(e) => setDireccion(e.target.value)}
-                        sx={{ mt: 2, backgroundColor: '#fff' }}
+                        sx={{ mt: 2 }}
                     />
-
                     <FormControl fullWidth sx={{ mt: 2 }}>
                         <InputLabel>Restaurante</InputLabel>
                         <Select
@@ -129,12 +93,7 @@ const SucursalForm = () => {
                         variant="contained"
                         color="primary"
                         fullWidth
-                        sx={{
-                            mt: 3,
-                            textTransform: 'none',
-                            fontSize: 16,
-                            borderRadius: 2,
-                        }}
+                        sx={{ mt: 3 }}
                     >
                         Registrar Sucursal
                     </Button>

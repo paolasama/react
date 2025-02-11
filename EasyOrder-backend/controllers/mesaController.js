@@ -1,12 +1,14 @@
-const { sequelize } = require('../config/db'); // Asegúrate de que la ruta sea correcta
-const { QueryTypes } = require('sequelize');
+// controllers/mesasController.js
+const { Mesa } = require('../models'); // Asegúrate de que el modelo de Mesa esté importado
 
-exports.getMesas = async (req, res) => {
-    try {
-        const mesas = await sequelize.query('SELECT * FROM mesas', { type: QueryTypes.SELECT });
-        res.status(200).json(mesas);
-    } catch (error) {
-        console.error('Error al obtener las mesas:', error);
-        res.status(500).json({ message: 'Error al obtener las mesas', error });
-    }
+const obtenerMesas = async (req, res) => {
+  try {
+    const mesas = await Mesa.findAll(); // Obtiene todas las mesas
+    res.status(200).json(mesas); // Devuelve las mesas en formato JSON
+  } catch (error) {
+    console.error('Error al obtener las mesas:', error); // Registra el error
+    res.status(500).json({ error: 'Error al obtener las mesas' }); // En caso de error
+  }
 };
+
+module.exports = { obtenerMesas };

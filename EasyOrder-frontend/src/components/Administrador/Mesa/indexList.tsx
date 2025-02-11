@@ -1,74 +1,92 @@
-import React from 'react';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Typography,
-    Paper,
-    Button,
-} from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import React, { useState, useEffect } from 'react';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography } from '@mui/material';
+import servicioMesa from '../../../services/Administrador/servicioMesa'; // Importa el servicio
+
+interface Mesa {
+    id: number;
+    numeroMesa: string;
+    capacidad: string;
+    estado: string;
+    restaurante: string;
+    sucursal: string;
+}
 
 const MesaList: React.FC = () => {
-    const mesas = [
-        { id: 1, nombre: 'Mesa 1', capacidad: 4, restaurante: 'Restaurante A' },
-        { id: 2, nombre: 'Mesa 2', capacidad: 6, restaurante: 'Restaurante B' },
-        { id: 3, nombre: 'Mesa 3', capacidad: 2, restaurante: 'Restaurante C' },
-    ];
+    const [mesas, setMesas] = useState<Mesa[]>([]);
+
+    useEffect(() => {
+        servicioMesa.getMesas()
+            .then((response) => setMesas(response))
+            .catch((error) => console.error("❌ Error al cargar las mesas:", error));
+    }, []);
 
     return (
-        <TableContainer component={Paper} sx={{ marginTop: 3, borderRadius: 3, boxShadow: 3 }}>
-            <Typography
-                variant="h5"
-                sx={{ padding: 2, fontWeight: 'bold', backgroundColor: '#fff8e1', textAlign: 'center' }}
-            >
-                🍽️ Listado de Mesas 🍽️
+        <TableContainer component={Paper} sx={{
+            maxWidth: 700,
+            margin: '20px auto',  // Asegúrate de que el margen sea apropiado
+            padding: 3,  // Ajusta el padding del contenedor
+            borderRadius: 5,
+            backgroundColor: '#ffffff',
+            boxShadow: '0px 4px 5px rgba(0, 0, 0, 0.1)',
+        }}>
+            <Typography variant="h5" sx={{
+                mb: 3,
+                textAlign: 'center',
+                fontWeight: 'bold',
+                color: '#1976d2',
+            }}>
+                Lista de Mesas
             </Typography>
             <Table>
                 <TableHead>
-                    <TableRow sx={{ backgroundColor: '#ffe0b2' }}>
-                        <TableCell align="left"><strong>ID</strong></TableCell>
-                        <TableCell align="left"><strong>Nombre</strong></TableCell>
-                        <TableCell align="left"><strong>Capacidad</strong></TableCell>
-                        <TableCell align="left"><strong>Restaurante</strong></TableCell>
-                        <TableCell align="center"><strong>Acciones</strong></TableCell>
+                    <TableRow sx={{
+                        backgroundColor: '#1976d2',
+                        borderRadius: 5,
+                    }}>
+                        {['Número de Mesa', 'Capacidad', 'Estado', 'Restaurante', 'Sucursal', 'Acciones'].map((text) => (
+                            <TableCell key={text} sx={{
+                                color: '#fff',
+                                fontWeight: 'bold',
+                                textAlign: 'center',
+                                padding: '8px',
+                            }}>
+                                {text}
+                            </TableCell>
+                        ))}
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {mesas.map((mesa) => (
-                        <TableRow key={mesa.id} hover>
-                            <TableCell align="left">{mesa.id}</TableCell>
-                            <TableCell align="left">{mesa.nombre}</TableCell>
-                            <TableCell align="left">{mesa.capacidad}</TableCell>
-                            <TableCell align="left">{mesa.restaurante}</TableCell>
-                            <TableCell align="center">
+                        <TableRow key={mesa.id} sx={{
+                            '&:hover': { backgroundColor: '#f5f5f5' },
+                        }}>
+                            <TableCell>{mesa.numeroMesa}</TableCell>
+                            <TableCell>{mesa.capacidad}</TableCell>
+                            <TableCell>{mesa.estado}</TableCell>
+                            <TableCell>{mesa.restaurante}</TableCell>
+                            <TableCell>{mesa.sucursal}</TableCell>
+                            <TableCell>
                                 <Button
                                     variant="contained"
-                                    color="secondary"
+                                    color="primary"
                                     size="small"
-                                    startIcon={<Edit />}
-                                    sx={{ marginRight: 1, fontWeight: 'bold', borderRadius: 2 }}
+                                    sx={{
+                                        borderRadius: 3,
+                                        marginTop: 1,  // Añade un pequeño margen si es necesario
+                                        '&:hover': {
+                                            backgroundColor: '#1565c0',
+                                            transform: 'scale(1.05)',
+                                        },
+                                    }}
                                 >
                                     Editar
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    color="error"
-                                    size="small"
-                                    startIcon={<Delete />}
-                                    sx={{ fontWeight: 'bold', borderRadius: 2 }}
-                                >
-                                    Eliminar
                                 </Button>
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
-        </TableContainer>
+        </TableContainer>               
     );
 };
 

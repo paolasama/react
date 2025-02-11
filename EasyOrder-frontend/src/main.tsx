@@ -1,18 +1,11 @@
-/**
- ** NOTA: Componente principal encargado de renderizar la aplicación
- **       EasyOrder en el elemento raíz DOM con React.StrictMode.
- *
- * main.tsx - creado/actualizado por Raúl Bañuelos - 19/12/2024
- */
+import React from 'react'; // Importamos React para poder usar JSX
+import ReactDOM from 'react-dom'; // Importamos ReactDOM para poder renderizar el componente en el DOM
+import EasyOrderApp from './EasyOrder'; // Importamos el componente principal de la aplicación
 
- import React from 'react';
- import ReactDOM from 'react-dom';
- import EasyOrderApp from './EasyOrder';
- 
- ReactDOM.render(
-     <React.StrictMode>
-         <EasyOrderApp />
-     </React.StrictMode>,
-     document.getElementById('root')
- );
- 
+// Usamos ReactDOM.render para renderizar el componente en el elemento con id 'root'
+ReactDOM.render(
+    <React.StrictMode> {/* Modo estricto para advertencias y mejores prácticas en desarrollo */}
+        <EasyOrderApp /> {/* Componente principal de la aplicación */}
+    </React.StrictMode>,
+    document.getElementById('root') // Aquí es donde se monta la aplicación en el DOM
+);

@@ -1,39 +1,42 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography } from '@mui/material';
-import axios from 'axios';
-import BusinessIcon from '@mui/icons-material/Business';
-
-interface Sucursal {
-    id: number;
-    nombre: string;
-    direccion: string;
-    restaurante: { nombre: string };
-}
+import { SucursalProps } from '../../../services/Administrador/servicioSucursal'; // Asegúrate de que la ruta sea correcta
+import servicioSucursal from '../../../services/Administrador/servicioSucursal'; // Importar el servicio
 
 const SucursalList = () => {
-    const [sucursales, setSucursales] = useState<Sucursal[]>([]);
+    const [sucursales, setSucursales] = useState<SucursalProps[]>([]);
     const [error, setError] = useState<string | null>(null);
 
+    // Obtener las sucursales al cargar el componente
     useEffect(() => {
         const fetchSucursales = async () => {
             try {
-                console.log("📌 Cargando sucursales...");
-                const response = await axios.get('http://localhost:3000/api/sucursales');
-                console.log("✅ Sucursales obtenidas:", response.data);
-                setSucursales(response.data);
+                const response = await servicioSucursal.getSucursales();
+                setSucursales(response);
             } catch (error) {
-                console.error("❌ Error al obtener sucursales:", error);
-                setError("Error al cargar las sucursales.");
+                setError("Error al obtener las sucursales");
+                console.error(error);
             }
         };
 
         fetchSucursales();
     }, []);
 
+    // Eliminar una sucursal
+    const handleDelete = async (id: number) => {
+        try {
+            await servicioSucursal.deleteSucursal(id);
+            setSucursales(sucursales.filter((sucursal) => sucursal.id !== id));
+            alert('Sucursal eliminada correctamente.');
+        } catch (error) {
+            console.error("❌ Error al eliminar la sucursal", error);
+            alert('Error al eliminar la sucursal');
+        }
+    };
+
     return (
         <TableContainer component={Paper} sx={{ maxWidth: 900, margin: '20px auto', padding: 3, borderRadius: 3 }}>
-            <Typography variant="h5" sx={{ mb: 2, textAlign: 'center', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                <BusinessIcon sx={{ fontSize: 30, color: "#1565c0" }} />
+            <Typography variant="h5" sx={{ mb: 2, textAlign: 'center', fontWeight: 'bold' }}>
                 📍 Lista de Sucursales
             </Typography>
 
@@ -60,8 +63,8 @@ const SucursalList = () => {
                                 <TableCell>{sucursal.direccion}</TableCell>
                                 <TableCell>{sucursal.restaurante.nombre}</TableCell>
                                 <TableCell>
-                                    <Button variant="contained" color="secondary" size="small">
-                                        Editar
+                                    <Button variant="contained" color="secondary" size="small" onClick={() => handleDelete(sucursal.id)}>
+                                        Eliminar
                                     </Button>
                                 </TableCell>
                             </TableRow>

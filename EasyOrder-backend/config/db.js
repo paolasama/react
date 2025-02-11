@@ -1,24 +1,23 @@
+// config/db.js
 const { Sequelize } = require('sequelize');
 
+// Configuración de la conexión a PostgreSQL
 const sequelize = new Sequelize('easyorderv2', 'easyorder_user', '210202', {
     host: 'localhost',
     dialect: 'postgres',
-    logging: false, // Evita logs excesivos en consola
+    logging: false, // Desactiva los logs de la base de datos en consola
 });
 
 async function connectDB() {
     try {
         await sequelize.authenticate();
-        console.log("✅ Conexión establecida con PostgreSQL");
-
-        // Sincronizar modelos sin alterar estructura automáticamente
-        await sequelize.sync();
-        console.log("✅ Modelos sincronizados correctamente");
+        console.log("✅ Conectado a PostgreSQL");
+        await sequelize.sync(); // Sincroniza los modelos con la base de datos
+        console.log("✅ Modelos sincronizados");
     } catch (error) {
-        console.error("❌ Error al conectar con la base de datos:", error);
-        process.exit(1);
+        console.error("❌ Error en la conexión:", error);
+        process.exit(1); // Finaliza el proceso si la conexión falla
     }
 }
 
-// ✅ Asegurarse de exportar tanto `sequelize` como `connectDB`
 module.exports = { sequelize, connectDB };

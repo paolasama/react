@@ -1,20 +1,14 @@
-/**
- ** NOTA: Componente encargado de gestionar el estado global y las rutas.
- *
- * EasyOrderApp.tsx - creado/actualizado por Raúl Bañuelos - 19/12/2024
- */
+import { FunctionComponent } from 'react'; // Importamos FunctionComponent de React para tipar el componente
+import EasyOrderRoutes from './routes/EasyOrderRoutes'; // Rutas de la aplicación
+import { OrderProvider } from './context/OrderContext'; // Contexto para gestionar el estado global de las órdenes
 
- import { FunctionComponent } from 'react';
- import EasyOrderRoutes from './routes/EasyOrderRoutes';
- import { OrderProvider } from './context/OrderContext';
- 
- const EasyOrderApp: FunctionComponent = () => {
-     return (
-         <OrderProvider>
-             <EasyOrderRoutes />
-         </OrderProvider>
-     );
- };
- 
- export default EasyOrderApp;
- 
+const EasyOrderApp: FunctionComponent = () => {
+    return (
+        // Proveedor del contexto OrderProvider, que envuelve las rutas de la aplicación
+        <OrderProvider>
+            <EasyOrderRoutes /> {/* Rutas gestionadas en el componente EasyOrderRoutes */}
+        </OrderProvider>
+    );
+};
+
+export default EasyOrderApp; // Exportamos el componente para su uso en otros archivos

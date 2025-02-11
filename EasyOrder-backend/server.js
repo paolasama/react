@@ -1,39 +1,22 @@
+// server.js
 const express = require('express');
-const cors = require('cors'); // 🔥 Importar CORS
 const app = express();
-const { sequelize } = require('./config/db');
-const restauranteRoutes = require('./routes/restauranteRoutes');
-const sucursalRoutes = require('./routes/sucursalRoutes'); // Importa las rutas de sucursales
-
+const bodyParser = require('body-parser');
+const mesasRoutes = require('./routes/mesasRoutes');  // Ruta de las mesas
 
 // Middleware
-app.use(express.json());
-app.use(cors()); // 🔥 Permitir solicitudes desde el frontend
+app.use(bodyParser.json());  // Para parsear el cuerpo de las solicitudes en formato JSON
 
 // Rutas
-app.use('/api/restaurantes', restauranteRoutes);
-app.use('/api/sucursales', sucursalRoutes); // <- Esto es clave
+app.use('/api', mesasRoutes); // Ruta para las mesas
 
+// Manejo de error 404
+app.use((req, res, next) => {
+  res.status(404).send({ error: 'Ruta no encontrada' });
+});
 
-// Iniciar servidor
-const startServer = async () => {
-    try {
-        await sequelize.authenticate();
-        console.log('✅ Conexión establecida con PostgreSQL');
-
-        await sequelize.sync();
-        console.log('✅ Base de datos sincronizada');
-
-        const PORT = process.env.PORT || 3000;
-        app.listen(PORT, () => {
-            console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-        });
-
-    } catch (error) {
-        console.error('❌ Error al iniciar el servidor:', error);
-        process.exit(1);
-    }
-};
-
-// Llamar a la función para iniciar el servidor
-startServer();
+// Iniciar el servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en puerto ${PORT}`);
+});
