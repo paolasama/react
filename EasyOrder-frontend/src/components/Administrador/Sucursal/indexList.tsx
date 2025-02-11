@@ -1,78 +1,76 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography } from '@mui/material';
+import axios from 'axios';
+import BusinessIcon from '@mui/icons-material/Business';
 
 interface Sucursal {
     id: number;
     nombre: string;
     direccion: string;
-    restaurante: string;
+    restaurante: { nombre: string };
 }
 
-const SucursalList: React.FC<{ sucursales: Sucursal[] }> = ({ sucursales }) => {
-    return (
-        <div style={styles.container}>
-            <h2 style={styles.title}>Lista de Sucursales</h2>
-            <table style={styles.table}>
-                <thead>
-                    <tr>
-                        <th style={styles.th}>Nombre</th>
-                        <th style={styles.th}>Dirección</th>
-                        <th style={styles.th}>Restaurante</th>
-                        <th style={styles.th}>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {sucursales.map((sucursal) => (
-                        <tr key={sucursal.id}>
-                            <td style={styles.td}>{sucursal.nombre}</td>
-                            <td style={styles.td}>{sucursal.direccion}</td>
-                            <td style={styles.td}>{sucursal.restaurante}</td>
-                            <td style={styles.td}>
-                                <button style={styles.button}>Editar</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    );
-};
+const SucursalList = () => {
+    const [sucursales, setSucursales] = useState<Sucursal[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
-const styles = {
-    container: {
-        margin: '20px auto',
-        maxWidth: '800px',
-        borderRadius: '8px',
-        padding: '10px',
-        background: '#fff',
-        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-    },
-    title: {
-        textAlign: 'center' as const,
-        marginBottom: '20px',
-        fontSize: '20px',
-    },
-    table: {
-        width: '100%',
-        borderCollapse: 'collapse' as const,
-    },
-    th: {
-        background: '#2196f3',
-        color: '#fff',
-        padding: '10px',
-        border: '1px solid #ddd',
-    },
-    td: {
-        padding: '10px',
-        border: '1px solid #ddd',
-    },
-    button: {
-        padding: '5px 10px',
-        background: '#2196f3',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-    },
+    useEffect(() => {
+        const fetchSucursales = async () => {
+            try {
+                console.log("📌 Cargando sucursales...");
+                const response = await axios.get('http://localhost:3000/api/sucursales');
+                console.log("✅ Sucursales obtenidas:", response.data);
+                setSucursales(response.data);
+            } catch (error) {
+                console.error("❌ Error al obtener sucursales:", error);
+                setError("Error al cargar las sucursales.");
+            }
+        };
+
+        fetchSucursales();
+    }, []);
+
+    return (
+        <TableContainer component={Paper} sx={{ maxWidth: 900, margin: '20px auto', padding: 3, borderRadius: 3 }}>
+            <Typography variant="h5" sx={{ mb: 2, textAlign: 'center', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                <BusinessIcon sx={{ fontSize: 30, color: "#1565c0" }} />
+                📍 Lista de Sucursales
+            </Typography>
+
+            {error && <Typography color="error" sx={{ textAlign: 'center' }}>{error}</Typography>}
+
+            <Table>
+                <TableHead>
+                    <TableRow sx={{ backgroundColor: '#1976d2' }}>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Nombre</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Dirección</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Restaurante</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Acciones</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {sucursales.length === 0 ? (
+                        <TableRow>
+                            <TableCell colSpan={4} align="center">No hay sucursales registradas.</TableCell>
+                        </TableRow>
+                    ) : (
+                        sucursales.map((sucursal) => (
+                            <TableRow key={sucursal.id}>
+                                <TableCell>{sucursal.nombre}</TableCell>
+                                <TableCell>{sucursal.direccion}</TableCell>
+                                <TableCell>{sucursal.restaurante.nombre}</TableCell>
+                                <TableCell>
+                                    <Button variant="contained" color="secondary" size="small">
+                                        Editar
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))
+                    )}
+                </TableBody>
+            </Table>
+        </TableContainer>
+    );
 };
 
 export default SucursalList;

@@ -1,44 +1,53 @@
-/**
- * RestauranteList componente - creado por Raúl.Bañuelos - 26/11/2024
- * Actualización y mejoras - 01/02/2025
- * RestauranteList.tsx
- */
-
-import { FunctionComponent } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Switch } from '@mui/material';
-
-// Servicios propios
+import { Table, TableBody, TableCell, TableHead, TableRow, Switch, Button, Box, styled, Typography } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import { RestauranteProps } from '../../../services/Administrador/servicioRestaurante';
 
-// Interface de Props del componente RestauranteList
-interface Props {
-    restaurantes: RestauranteProps[];
-    alActualizarEstRestaurante: (id: number, isActive: boolean) => void;
-    alEditarRestaurante: (restaurante: RestauranteProps) => void;
-}
+// Switch personalizado
+const CustomSwitch = styled(Switch)({
+    '& .MuiSwitch-switchBase.Mui-checked': {
+        color: '#ff9800',
+        '& + .MuiSwitch-track': {
+            backgroundColor: '#ff9800',
+        },
+    },
+    '& .MuiSwitch-switchBase:not(.Mui-checked)': {
+        color: '#d32f2f',
+        '& + .MuiSwitch-track': {
+            backgroundColor: '#d32f2f',
+        },
+    },
+});
 
-const RestauranteList: FunctionComponent<Props> = ({ restaurantes, alActualizarEstRestaurante, alEditarRestaurante }) => {
+const RestauranteList = ({ restaurantes, alActualizarEstRestaurante }: { restaurantes: RestauranteProps[], alActualizarEstRestaurante: (id: number, isActive: boolean) => void }) => {
     return (
-        <TableContainer component={Paper}>
-            <Table>
+        <Box sx={{ overflowX: 'auto', padding: 3, backgroundColor: '#fff8e1', borderRadius: 3, boxShadow: 4 }}>
+            <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: 2, color: '#6d4c41' }}>
+                📜 Lista de Restaurantes
+            </Typography>
+            <Table sx={{ minWidth: 650 }}>
                 <TableHead>
-                    <TableRow>
-                        <TableCell>Nombre</TableCell>
-                        <TableCell>Dirección</TableCell>
-                        <TableCell>Activo</TableCell>
-                        <TableCell>Acciones</TableCell>
+                    <TableRow sx={{ backgroundColor: '#ffe0b2' }}>
+                        <TableCell><strong>Nombre</strong></TableCell>
+                        <TableCell><strong>Dirección</strong></TableCell>
+                        <TableCell><strong>Activo</strong></TableCell>
+                        <TableCell><strong>Acciones</strong></TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {restaurantes.map((restaurant) => (
-                        <TableRow key={restaurant.id} style={{ opacity: restaurant.activo ? 1 : 0.5, backgroundColor: restaurant.activo ? 'inherit' : '#f8d7da' }}>
-                            <TableCell>{restaurant.nombre}</TableCell>
-                            <TableCell>{restaurant.direccion || 'Sin dirección'}</TableCell>
+                    {restaurantes.map((restaurante) => (
+                        <TableRow key={restaurante.id} sx={{ '&:nth-of-type(odd)': { backgroundColor: '#fff3e0' } }}>
+                            <TableCell>{restaurante.nombre}</TableCell>
+                            <TableCell>{restaurante.direccion}</TableCell>
                             <TableCell>
-                                <Switch color="primary" checked={restaurant.activo} onChange={() => alActualizarEstRestaurante(restaurant.id, !restaurant.activo)} />
+                                <CustomSwitch
+                                    checked={restaurante.activo}
+                                    onChange={(e) =>
+                                        alActualizarEstRestaurante(restaurante.id, e.target.checked)
+                                    }
+                                />
                             </TableCell>
                             <TableCell>
-                                <Button color="primary" onClick={() => alEditarRestaurante(restaurant)} disabled={!restaurant.activo}>
+                                <Button variant="contained" startIcon={<EditIcon />} sx={{ textTransform: 'none', fontWeight: 'bold', backgroundColor: '#ff9800', '&:hover': { backgroundColor: '#f57c00' } }}>
                                     Editar
                                 </Button>
                             </TableCell>
@@ -46,7 +55,7 @@ const RestauranteList: FunctionComponent<Props> = ({ restaurantes, alActualizarE
                     ))}
                 </TableBody>
             </Table>
-        </TableContainer>
+        </Box>
     );
 };
 

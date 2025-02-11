@@ -1,80 +1,59 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/**
- * RestauranteForm componente - creado por Raúl.Bañuelos - 26/11/2024
- * Actualización y mejoras - 01/02/2025
- * RestauranteForm.tsx
- */
+import { useState } from 'react';
+import { Box, TextField, Button, Switch, FormControlLabel, Typography, styled } from '@mui/material';
+import servicioRestaurante, { NuevoRestauranteProps } from '../../../services/Administrador/servicioRestaurante';
 
-import React, { FunctionComponent, useState } from 'react';
-import { TextField, Button, Box, CircularProgress, Alert, } from '@mui/material';//Switch, FormControlLabel 
+// Switch personalizado
+const CustomSwitch = styled(Switch)({
+    '& .MuiSwitch-switchBase.Mui-checked': {
+        color: '#ff9800',
+        '& + .MuiSwitch-track': {
+            backgroundColor: '#ff9800',
+        },
+    },
+    '& .MuiSwitch-switchBase:not(.Mui-checked)': {
+        color: '#d32f2f',
+        '& + .MuiSwitch-track': {
+            backgroundColor: '#d32f2f',
+        },
+    },
+});
 
-// Servicios propios
-import servicioRestaurante, { RestauranteProps, NuevoRestauranteProps } from '../../../services/Administrador/servicioRestaurante';
-
-// Interface de Props del componente RestauranteForm
-interface Props {
-    alAgregarRestaurante: (restaurant: RestauranteProps) => void;
-}
-
-const RestauranteForm: FunctionComponent<Props> = ({ alAgregarRestaurante }) => {
-    // Hooks -> Uso de estados
+const RestauranteForm = () => {
     const [nombre, setNombre] = useState('');
     const [direccion, setDireccion] = useState('');
-    //const [activo, setActivo] = useState(true);
-    const [loading, setLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [activo, setActivo] = useState(true);
 
-    /**
-     ** Método para manejar el envío del formulario
-     * @author José Raúl Bañuelos Gámez
-     */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-
-        const restaurantData: NuevoRestauranteProps = { nombre, direccion };
+        const nuevoRestaurante: NuevoRestauranteProps = { nombre, direccion, activo };
+        console.log("📩 Enviando restaurante desde el formulario:", nuevoRestaurante);
 
         try {
-            const restauranteData = await servicioRestaurante.postRestaurante(restaurantData);
-            alAgregarRestaurante(restauranteData);
-            limpiarFormulario();
-        } catch (err: any) {
-            setErrorMessage(err.response?.data?.message || 'Error al registrar el restaurante.');
-        } finally {
-            setLoading(false);
+            await servicioRestaurante.postRestaurante(nuevoRestaurante);
+            alert('✅ Restaurante registrado con éxito');
+            setNombre('');
+            setDireccion('');
+            setActivo(true);
+        } catch {
+            alert('❌ Error al registrar el restaurante');
         }
     };
 
-    /**
-     ** Método para limpiar el formulario
-     * @author José Raúl Bañuelos Gámez
-     */
-    const limpiarFormulario = () => {
-        setNombre('');
-        setDireccion('');
-        //setActivo(true);
-    };
-
     return (
-        <Box
-            component="form"
-            onSubmit={handleSubmit}
+        <Box component="form" onSubmit={handleSubmit}
             sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                margin: '0 auto',
-                maxWidth: '400px',
-                width: '100%',
-                gap: 2,
-            }}
-        >
-            {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
-
-            <TextField label="Nombre del restaurante" value={nombre} onChange={(e) => setNombre(e.target.value)} disabled={loading} required />
-            <TextField label="Dirección" value={direccion} onChange={(e) => setDireccion(e.target.value)} disabled={loading} required />
-            {/* <FormControlLabel control={<Switch checked={activo} onChange={(e) => setActivo(e.target.checked)} disabled={loading} />} label="Activo" /> */}
-            <Button color="primary" type="submit" variant="contained" disabled={loading}>
-                {loading ? <CircularProgress size={24} /> : 'Registrar restaurante'}
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                maxWidth: 400, margin: 'auto', padding: 4, boxShadow: 5, borderRadius: 3,
+                backgroundColor: '#fff8e1',
+            }}>
+            <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#6d4c41' }}>
+                🍽️ Nuevo Restaurante
+            </Typography>
+            <TextField label="Nombre del restaurante" value={nombre} onChange={(e) => setNombre(e.target.value)} required fullWidth />
+            <TextField label="Dirección" value={direccion} onChange={(e) => setDireccion(e.target.value)} required fullWidth />
+            <FormControlLabel control={<CustomSwitch checked={activo} onChange={(e) => setActivo(e.target.checked)} />} label="Activo" />
+            <Button type="submit" variant="contained" sx={{ fontWeight: 'bold', textTransform: 'none', backgroundColor: '#ff9800', '&:hover': { backgroundColor: '#f57c00' } }}>
+                Registrar Restaurante
             </Button>
         </Box>
     );

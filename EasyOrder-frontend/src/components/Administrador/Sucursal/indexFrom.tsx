@@ -1,143 +1,147 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Box, TextField, Button, Typography, Paper, Select, InputLabel, FormControl, MenuItem } from '@mui/material';
+import StoreIcon from '@mui/icons-material/Store';
 
-interface SucursalFormProps {
-    onAddSucursal: (sucursal: any) => void;
-}
+type Restaurante = {
+    id: number;
+    nombre: string;
+};
 
-const SucursalForm: React.FC<SucursalFormProps> = ({ onAddSucursal }) => {
+const SucursalForm = () => {
     const [nombre, setNombre] = useState('');
     const [direccion, setDireccion] = useState('');
-    const [restaurante, setRestaurante] = useState('');
-    const restaurantes = [
-        { id: 1, nombre: 'El Mochomos' },
-        { id: 2, nombre: 'Rico Mexicano Restaurante' },
-        { id: 3, nombre: 'Pa’i Sushi' },
-        { id: 4, nombre: 'El Gallito Restaurante' },
-    ];
+    const [restauranteId, setRestauranteId] = useState<number | ''>('');
+    const [restaurantes, setRestaurantes] = useState<Restaurante[]>([]);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    useEffect(() => {
+        axios.get('http://localhost:3000/api/restaurantes')
+            .then(response => setRestaurantes(response.data))
+            .catch(error => console.error("❌ Error al cargar restaurantes:", error));
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log("📌 Formulario enviado");
 
-        const nuevaSucursal = {
-            nombre,
-            direccion,
-            restaurante_id: Number(restaurante),
-        };
+        if (!nombre || !direccion || !restauranteId) {
+            setError("Todos los campos son obligatorios");
+            return;
+        }
+
+        setError('');
+        setSuccess(false);
 
         try {
-            const response = await fetch('http://localhost:3000/api/sucursales', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(nuevaSucursal),
+            const response = await axios.post('http://localhost:3000/api/sucursales', {
+                nombre,
+                direccion,
+                restauranteId: Number(restauranteId),
             });
 
-            if (!response.ok) {
-                throw new Error('Error al registrar la sucursal');
-            }
-
-            const data = await response.json();
-            onAddSucursal(data); // Actualiza la lista en el estado global
-            alert('Sucursal registrada con éxito');
+            console.log("✅ Sucursal creada:", response.data);
+            setSuccess(true);
             setNombre('');
             setDireccion('');
-            setRestaurante('');
+            setRestauranteId('');
+
         } catch (error) {
-            console.error('Error al conectar con el servidor:', error);
-            alert('Hubo un problema al enviar la solicitud');
+            if (axios.isAxiosError(error)) {
+                console.error("❌ Error al crear la sucursal:", error.response?.data || error.message);
+                setError(error.response?.data?.message || "Error desconocido");
+            } else {
+                console.error("❌ Error inesperado:", error);
+                setError("Error inesperado al registrar la sucursal");
+            }
         }
     };
 
     return (
-        <div style={styles.container}>
-            <h2 style={styles.title}>Registrar Nueva Sucursal</h2>
-            <form onSubmit={handleSubmit} style={styles.form}>
-                <div style={styles.formGroup}>
-                    <label htmlFor="nombre" style={styles.label}>Nombre de la Sucursal:</label>
-                    <input
-                        id="nombre"
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                backgroundColor: '#f4f6f8',
+                minHeight: '50vh',
+                paddingTop: 4,
+            }}
+        >
+            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 4, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <StoreIcon sx={{ fontSize: 40, color: "#1565c0" }} />
+                Gestión de Sucursales
+            </Typography>
+
+            <Paper
+                elevation={4}
+                sx={{
+                    padding: 4,
+                    borderRadius: 3,
+                    backgroundColor: '#fff',
+                    textAlign: 'center',
+                    width: 400,
+                }}
+            >
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1565c0' }}>
+                    Nueva Sucursal
+                </Typography>
+
+                <form onSubmit={handleSubmit}>
+                    <TextField
+                        label="Nombre de la Sucursal"
+                        fullWidth
+                        variant="outlined"
                         value={nombre}
                         onChange={(e) => setNombre(e.target.value)}
-                        style={styles.input}
-                        required
+                        sx={{ mt: 2, backgroundColor: '#fff' }}
                     />
-                </div>
-                <div style={styles.formGroup}>
-                    <label htmlFor="direccion" style={styles.label}>Dirección:</label>
-                    <input
-                        id="direccion"
+                    <TextField
+                        label="Dirección"
+                        fullWidth
+                        variant="outlined"
                         value={direccion}
                         onChange={(e) => setDireccion(e.target.value)}
-                        style={styles.input}
-                        required
+                        sx={{ mt: 2, backgroundColor: '#fff' }}
                     />
-                </div>
-                <div style={styles.formGroup}>
-                    <label htmlFor="restaurante" style={styles.label}>Restaurante:</label>
-                    <select
-                        id="restaurante"
-                        value={restaurante}
-                        onChange={(e) => setRestaurante(e.target.value)}
-                        style={styles.input}
-                        required
-                    >
-                        <option value="">Selecciona un restaurante</option>
-                        {restaurantes.map((rest) => (
-                            <option key={rest.id} value={rest.id}>
-                                {rest.nombre}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <button type="submit" style={styles.button}>Registrar Sucursal</button>
-            </form>
-        </div>
-    );
-};
 
-const styles = {
-    container: {
-        margin: '20px auto',
-        padding: '20px',
-        maxWidth: '600px',
-        borderRadius: '8px',
-        background: '#f9f9f9',
-        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-    },
-    title: {
-        textAlign: 'center' as const,
-        marginBottom: '20px',
-        fontSize: '20px',
-    },
-    form: {
-        display: 'flex',
-        flexDirection: 'column' as const,
-        gap: '15px',
-    },
-    formGroup: {
-        display: 'flex',
-        flexDirection: 'column' as const,
-    },
-    label: {
-        marginBottom: '5px',
-        fontWeight: 'bold' as const,
-    },
-    input: {
-        padding: '10px',
-        fontSize: '14px',
-        borderRadius: '4px',
-        border: '1px solid #ccc',
-    },
-    button: {
-        padding: '10px',
-        background: '#2196f3',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-    },
+                    <FormControl fullWidth sx={{ mt: 2 }}>
+                        <InputLabel>Restaurante</InputLabel>
+                        <Select
+                            value={restauranteId}
+                            onChange={(e) => setRestauranteId(Number(e.target.value))}
+                        >
+                            <MenuItem value="">Selecciona un restaurante</MenuItem>
+                            {restaurantes.map((restaurante) => (
+                                <MenuItem key={restaurante.id} value={restaurante.id}>
+                                    {restaurante.nombre}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    {error && <Typography color="error" sx={{ mt: 2 }}>{error}</Typography>}
+                    {success && <Typography color="primary" sx={{ mt: 2 }}>✅ Sucursal registrada con éxito.</Typography>}
+
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        sx={{
+                            mt: 3,
+                            textTransform: 'none',
+                            fontSize: 16,
+                            borderRadius: 2,
+                        }}
+                    >
+                        Registrar Sucursal
+                    </Button>
+                </form>
+            </Paper>
+        </Box>
+    );
 };
 
 export default SucursalForm;

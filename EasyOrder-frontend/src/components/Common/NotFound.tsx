@@ -1,13 +1,10 @@
 import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const NotFoundScreen = () => {
     const navigate = useNavigate();
-
-    const handleGoHome = () => {
-        navigate('/');
-    };
+    const theme = useTheme();
 
     return (
         <Box
@@ -18,34 +15,70 @@ const NotFoundScreen = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 textAlign: 'center',
-                backgroundColor: '#f0f4f8',
-                padding: 2,
+                backgroundColor: theme.palette.background.default,
+                padding: { xs: 3, sm: 4 },
             }}
         >
-            <Box 
+            {/* Imagen con diseño gastronómico */}
+            <Box
                 component="img"
-                src="/assets/404.jpg" // Imagen desde la carpeta `public`
-                alt="404 Not Found"
-                sx={{ width: 300, height: 'auto', marginBottom: 2 }}
+                src="/404.jpg" // Reemplázalo con una imagen representativa
+                alt="Plato vacío - Página no encontrada"
+                sx={{
+                    width: { xs: 200, sm: 300, md: 350 },
+                    height: 'auto',
+                    marginBottom: 3,
+                    boxShadow: 3,
+                    borderRadius: 2,
+                }}
             />
-            <Typography variant="h5" sx={{ marginBottom: 2, color: '#555' }}>
-                ¡Ups! Página no encontrada
+
+            {/* Mensaje amigable y temático */}
+            <Typography 
+                variant="h4" 
+                sx={{ 
+                    fontWeight: 'bold', 
+                    marginBottom: 2, 
+                    color: theme.palette.text.primary 
+                }}
+            >
+                ¡Oh no! 🍽️ Esta página está vacía
             </Typography>
-            <Typography variant="body1" sx={{ marginBottom: 4, color: '#777' }}>
-                La página que estás buscando no existe o ha sido movida.
+
+            <Typography 
+                variant="body1" 
+                sx={{ 
+                    marginBottom: 4, 
+                    maxWidth: '80%', 
+                    color: theme.palette.text.secondary 
+                }}
+            >
+                Parece que la receta de esta página se perdió en la cocina.  
+                ¿Por qué no vuelves al menú principal y eliges algo delicioso?
             </Typography>
+
+            {/* Botón estilizado con efectos visuales */}
             <Button
                 variant="contained"
-                color="primary"
+                color="secondary"
                 size="large"
                 sx={{
                     textTransform: 'none',
                     borderRadius: 2,
-                    paddingX: 4,
+                    paddingX: 5,
+                    paddingY: 1.5,
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    transition: '0.3s',
+                    backgroundColor: theme.palette.warning.main,
+                    '&:hover': {
+                        backgroundColor: theme.palette.warning.dark,
+                        transform: 'scale(1.05)',
+                    },
                 }}
-                onClick={handleGoHome}
+                onClick={() => navigate('/menu')}
             >
-                Volver al inicio
+                Ver el Menú 🍕
             </Button>
         </Box>
     );

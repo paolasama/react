@@ -1,29 +1,39 @@
-// Archivo: server.js
-require('dotenv').config(); // Cargar variables de entorno desde .env
-const app = require('./app');
-const db = require('./models');
+const express = require('express');
+const cors = require('cors'); // 🔥 Importar CORS
+const app = express();
+const { sequelize } = require('./config/db');
+const restauranteRoutes = require('./routes/restauranteRoutes');
+const sucursalRoutes = require('./routes/sucursalRoutes'); // Importa las rutas de sucursales
 
-(async () => {
+
+// Middleware
+app.use(express.json());
+app.use(cors()); // 🔥 Permitir solicitudes desde el frontend
+
+// Rutas
+app.use('/api/restaurantes', restauranteRoutes);
+app.use('/api/sucursales', sucursalRoutes); // <- Esto es clave
+
+
+// Iniciar servidor
+const startServer = async () => {
     try {
-        console.log('🔍 Conectando a la base de datos...');
-        await db.sequelize.authenticate();
-        console.log('✅ Conexión exitosa a la base de datos.');
+        await sequelize.authenticate();
+        console.log('✅ Conexión establecida con PostgreSQL');
 
-        console.log('🔄 Sincronizando modelos...');
-        await db.sequelize.sync({ alter: true }); // Sincroniza sin perder datos
-        console.log('✅ Base de datos sincronizada correctamente.');
-
-        // Verificar que la aplicación está correctamente configurada
-        if (!app) {
-            throw new Error("❌ Error: La instancia de Express no está definida.");
-        }
+        await sequelize.sync();
+        console.log('✅ Base de datos sincronizada');
 
         const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => {
-            console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
+            console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
         });
+
     } catch (error) {
-        console.error('❌ Error al iniciar la aplicación:', error.message);
+        console.error('❌ Error al iniciar el servidor:', error);
         process.exit(1);
     }
-})();
+};
+
+// Llamar a la función para iniciar el servidor
+startServer();
