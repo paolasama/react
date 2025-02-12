@@ -1,21 +1,14 @@
-const Sequelize = require('sequelize');
-const config = require('../config/config');
-const RestauranteModel = require('./Restaurante');
+const { sequelize } = require('../config/db');
+const Restaurante = require('./Restaurante');
+const Sucursal = require('./Sucursal');
 
-const sequelize = new Sequelize(
-  config.development.database,
-  config.development.username,
-  config.development.password,
-  {
-    host: config.development.host,
-    dialect: 'postgres',
-    logging: false,
-  }
-);
+if (!Restaurante || !Sucursal) {
+    console.error('❌ Error: Alguno de los modelos no está definido correctamente.');
+    process.exit(1);
+}
 
-const db = {};
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
-db.Restaurante = RestauranteModel(sequelize, Sequelize.DataTypes);
+// Asociaciones entre modelos
+Restaurante.hasMany(Sucursal, { foreignKey: 'restauranteId', onDelete: 'CASCADE' });
+Sucursal.belongsTo(Restaurante, { foreignKey: 'restauranteId' });
 
-module.exports = db;
+module.exports = { sequelize, Restaurante, Sucursal };

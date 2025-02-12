@@ -1,34 +1,23 @@
-module.exports = (sequelize, DataTypes) => {
-  const Restaurante = sequelize.define('Restaurante', {
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/db');
+
+const Restaurante = sequelize.define('Restaurante', {
     id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
     },
     nombre: {
-      type: DataTypes.STRING,
-      allowNull: false,
+        type: DataTypes.STRING,
+        allowNull: false
     },
     direccion: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    activo: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
-    },
-    creado_en: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-    actualizado_en: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-  }, {
-    tableName: 'restaurantes',
-    timestamps: false,
-  });
+        type: DataTypes.STRING,
+        allowNull: false
+    }
+}, {
+    tableName: 'restaurantes', // Asegúrate de que coincide con la base de datos
+    timestamps: true
+});
 
-  return Restaurante;
-};
+module.exports = Restaurante;

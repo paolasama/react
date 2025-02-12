@@ -1,10 +1,10 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import EasyOrderRoutes from './routes/EasyOrderRoutes'; // Asegúrate de que la ruta sea correcta
+import ReactDOM from 'react-dom';
+import EasyOrderApp from './EasyOrder';
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-root.render(
-  <React.StrictMode>
-    <EasyOrderRoutes /> {/* Aquí se renderizan las rutas */}
-  </React.StrictMode>
+ReactDOM.render(
+    <React.StrictMode>
+        <EasyOrderApp />
+    </React.StrictMode>,
+    document.getElementById('root')
 );
