@@ -1,54 +1,44 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Menu from '../components/Administrador/Menu/indexFrom.tsx'; // Actualiza la ruta
-
-const EasyOrderRoutes = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Menu />} /> {/* Esta es la ruta principal */}
-        {/* Puedes agregar más rutas aquí */}
-      </Routes>
-    </Router>
-  );
-};
-
-export default EasyOrderRoutes;
 import { FunctionComponent } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
- 
-// Pantallas de Administrador
-import RestaurantesScreen from '../screens/Administador/RestaurantesScreen';
-import SucursalScreen from '../screens/Administador/SucursalScreen';
-import MesaScreen from '../screens/Administador/MesaScreen';
 
-// Pantallas de Cliente
+// 📌 Pantallas de Administrador
+import RestaurantesScreen from '../screens/RestaurantesScreen';
+import SucursalScreen from '../screens/SucursalScreen';
+import MesaScreen from '../screens/MesaScreen';
+
+// 📌 Pantallas de Cliente
 import MenuScreen from '../screens/Cliente/Menu';
 import MiOrdenScreen from '../screens/Cliente/OrdenarPedido';
-import DetallePlatillo from '../screens/Cliente/Menu/DetallePlatillo';
+//import DetallePlatilloScreen from '../screens/Cliente/DetallePlatillo';
 
-// Pantalla de Login
+// 📌 Pantalla de Login y Error 404
 import LoginForm from '../screens/Login/InicioSesion';
 import NotFoundScreen from '../components/Common/NotFound';
 
+const EasyOrderRoutes: FunctionComponent = () => {
+    return (
+        <Router>
+            <Routes>
+                {/* Redirección a /menu por defecto */}
+                <Route path="/" element={<Navigate to="/menu" />} />
 
- 
- const EasyOrderRoutes: FunctionComponent = () => {
-     return (
-         <Router>
-             <Routes>
-                 <Route path="/" element={<Navigate to="/menu" />} />
-                 <Route path="/admin/restaurantes" element={<RestaurantesScreen />} />
-                 <Route path="/admin/sucursales" element={<SucursalScreen />} />
-                 <Route path="/admin/mesas" element={<MesaScreen />} />
-                 <Route path="/menu" element={<MenuScreen />} />
-                 <Route path="/mi-orden" element={<MiOrdenScreen />} />
-                 <Route path="/detalle-platillo/:id" element={<DetallePlatillo />} />
-                 <Route path="/login" element={<LoginForm />} />
-                 <Route path="*" element={<NotFoundScreen />} />
-             </Routes>
-         </Router>
-     );
- };
- 
- export default EasyOrderRoutes;
- 
+                {/* Rutas de Administrador */}
+                <Route path="/admin/restaurantes" element={<RestaurantesScreen />} />
+                <Route path="/admin/sucursales" element={<SucursalScreen />} />
+                <Route path="/admin/mesas" element={<MesaScreen />} />
+
+                {/* Rutas de Cliente */}
+                <Route path="/menu" element={<MenuScreen />} />
+                <Route path="/mi-orden" element={<MiOrdenScreen />} />
+                
+                {/* Pantalla de Login */}
+                <Route path="/login" element={<LoginForm />} />
+
+                {/* Ruta para páginas no encontradas */}
+                <Route path="*" element={<NotFoundScreen />} />
+            </Routes>
+        </Router>
+    );
+};
+
+export default EasyOrderRoutes;
