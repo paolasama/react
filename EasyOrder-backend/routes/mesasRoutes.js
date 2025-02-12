@@ -1,9 +1,11 @@
-// routes/mesasRoutes.js
 const express = require('express');
 const router = express.Router();
-const mesasController = require('../controllers/mesasController');  // Verifica que esta ruta sea correcta
+const mesasController = require('../controllers/mesasController');
 
-// Ruta para obtener todas las mesas
-router.get('/mesas', mesasController.obtenerMesas);
+// Ruta GET para obtener todas las mesas
+router.get('/', mesasController.obtenerMesas);
 
-module.exports = router;
+// Ruta POST para crear una nueva mesa
+router.post('/', mesasController.crearMesa);
+
+module.exports = router;  // Asegúrate de exportar el router

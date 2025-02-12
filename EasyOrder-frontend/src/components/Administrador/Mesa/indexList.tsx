@@ -22,12 +22,12 @@ const MesaList: React.FC = () => {
 
     return (
         <TableContainer component={Paper} sx={{
-            maxWidth: 700,
-            margin: '20px auto',  // Asegúrate de que el margen sea apropiado
-            padding: 3,  // Ajusta el padding del contenedor
+            maxWidth: 800,
+            margin: '20px auto',
+            padding: 3,
             borderRadius: 5,
             backgroundColor: '#ffffff',
-            boxShadow: '0px 4px 5px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
         }}>
             <Typography variant="h5" sx={{
                 mb: 3,
@@ -41,7 +41,6 @@ const MesaList: React.FC = () => {
                 <TableHead>
                     <TableRow sx={{
                         backgroundColor: '#1976d2',
-                        borderRadius: 5,
                     }}>
                         {['Número de Mesa', 'Capacidad', 'Estado', 'Restaurante', 'Sucursal', 'Acciones'].map((text) => (
                             <TableCell key={text} sx={{
@@ -72,7 +71,7 @@ const MesaList: React.FC = () => {
                                     size="small"
                                     sx={{
                                         borderRadius: 3,
-                                        marginTop: 1,  // Añade un pequeño margen si es necesario
+                                        marginTop: 1,
                                         '&:hover': {
                                             backgroundColor: '#1565c0',
                                             transform: 'scale(1.05)',
@@ -86,7 +85,7 @@ const MesaList: React.FC = () => {
                     ))}
                 </TableBody>
             </Table>
-        </TableContainer>               
+        </TableContainer>
     );
 };
 

@@ -1,22 +1,35 @@
-// server.js
+require('dotenv').config();  // Cargar variables de entorno desde el archivo .env
+
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser');
-const mesasRoutes = require('./routes/mesasRoutes');  // Ruta de las mesas
+const sequelize = require('./config/db'); // Conexión a la base de datos
+const cors = require('cors');
 
-// Middleware
-app.use(bodyParser.json());  // Para parsear el cuerpo de las solicitudes en formato JSON
+// Middleware para analizar el cuerpo de las solicitudes POST
+app.use(express.json());  // Esto permite que puedas recibir datos JSON en los cuerpos de las solicitudes POST
+app.use(cors());  // Habilitar CORS
 
-// Rutas
-app.use('/api', mesasRoutes); // Ruta para las mesas
+// Importa las rutas correctamente
+const restauranteRoutes = require('./routes/restauranteRoutes');
+const sucursalRoutes = require('./routes/sucursalRoutes');
+const mesasRoutes = require('./routes/mesasRoutes');
 
-// Manejo de error 404
-app.use((req, res, next) => {
-  res.status(404).send({ error: 'Ruta no encontrada' });
-});
+// Usa las rutas con prefijos específicos
+app.use('/api/restaurantes', restauranteRoutes);
+app.use('/api/sucursales', sucursalRoutes);
+app.use('/api/mesas', mesasRoutes);
 
-// Iniciar el servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
-});
+// Sincroniza la base de datos
+sequelize.sync({ force: false })  // Sincroniza sin eliminar las tablas existentes
+  .then(() => {
+    console.log('Base de datos sincronizada');
+    // Iniciar el servidor solo después de sincronizar la base de datos
+    const port = process.env.PORT || 3000;  // Usar el puerto desde la variable de entorno o por defecto 3000
+    app.listen(port, () => {
+      console.log(`Servidor corriendo en http://localhost:${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Error al sincronizar la base de datos:', err);
+    process.exit(1); // Termina el proceso si hay un error en la sincronización
+  });

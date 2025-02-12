@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { TextField, Button, FormControl, InputLabel, Select, MenuItem, Typography, Paper } from '@mui/material';
 import axios from 'axios';
 
@@ -61,9 +61,9 @@ const MesaForm: React.FC<MesaFormProps> = ({ onSuccess }) => {
             maxWidth: 500,
             margin: 'auto',
             padding: 3,
-            borderRadius: 3,
+            borderRadius: 5,
             backgroundColor: '#ffffff',
-            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
         }}>
             <Typography variant="h5" sx={{ fontWeight: 'bold', textAlign: 'center', mb: 3 }}>
                 ✨ Registrar Nueva Mesa
