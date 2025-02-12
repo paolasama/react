@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize('easyorderv2', 'easyorder_user', '210202', {
+const sequelize = new Sequelize('easyorderv2', 'postgres', '0123456', {
     host: 'localhost',
     dialect: 'postgres',
     logging: false, // Evita logs excesivos en consola
@@ -12,7 +12,7 @@ async function connectDB() {
         console.log("✅ Conexión establecida con PostgreSQL");
 
         // Sincronizar modelos sin alterar estructura automáticamente
-        await sequelize.sync();
+        await sequelize.sync({ alter: true });
         console.log("✅ Modelos sincronizados correctamente");
     } catch (error) {
         console.error("❌ Error al conectar con la base de datos:", error);
@@ -20,5 +20,6 @@ async function connectDB() {
     }
 }
 
-// ✅ Asegurarse de exportar tanto `sequelize` como `connectDB`
+// ✅ Exportamos `sequelize` y `connectDB`
 module.exports = { sequelize, connectDB };
+
