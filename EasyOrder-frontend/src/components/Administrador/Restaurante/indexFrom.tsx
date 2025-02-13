@@ -28,8 +28,12 @@ const RestauranteForm: FunctionComponent<Props> = ({ alAgregarRestaurante }) => 
     const [direccion, setDireccion] = useState('');
     const [activo, setActivo] = useState(true);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!nombre.trim()) {
+            alert("El nombre del restaurante es obligatorio.");
+            return;
+        }
         const nuevoRestaurante: NuevoRestauranteProps = { nombre, direccion, activo };
         alAgregarRestaurante(nuevoRestaurante);
         setNombre('');

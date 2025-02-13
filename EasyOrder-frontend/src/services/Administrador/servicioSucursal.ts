@@ -13,45 +13,53 @@ export interface SucursalProps {
     id: number;
     nombre: string;
     direccion: string;
-    restaurante: { nombre: string }; // Información del restaurante asociado
-    createdAt: string; // Fecha de creación
-    updatedAt: string; // Fecha de última actualización
+    activo: boolean;
+    restaurante_id: number;
+    createdAt: string;
+    updatedAt: string;
+    Restaurante?: {
+        nombre: string;
+    };
 }
 
 export interface NuevaSucursalProps {
-    nombre: string; // Nombre de la sucursal
-    direccion: string; // Dirección de la sucursal
-    restauranteId: number; // ID del restaurante asociado
+    nombre: string;
+    direccion: string;
+    restauranteId: number;
 }
 
 // 📌 Servicio para interactuar con la API de sucursales
 const servicioSucursal = {
     // 📤 Método para enviar una nueva sucursal al backend
     postSucursal: async (sucursalData: NuevaSucursalProps): Promise<SucursalProps> => {
-        console.log("📤 Enviando datos al backend:", sucursalData);
+        console.log("Enviando datos:", sucursalData);
         try {
-            // Realizamos una solicitud POST para crear una nueva sucursal
-            const response = await urlBase_API.post('/', sucursalData);
-            console.log("✅ Respuesta del backend:", response.data);
-            return response.data; // Retornamos la respuesta del backend (la sucursal creada)
-        } catch (error) {
-            // Manejamos los errores de la solicitud
+            const response = await urlBase_API.post<SucursalProps>('/', sucursalData);
+            console.log("Respuesta:", response.data);
+            return response.data;
+        } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                // Si es un error de axios, mostramos detalles del error
-                console.error("❌ Error en postSucursal:", error.response?.data || error.message);
+                console.error("Error en postSucursal:", error.response?.data ?? error.message);
             } else {
-                // En caso de errores inesperados (no relacionados con axios)
-                console.error("❌ Error inesperado:", error);
+                console.error("Error en postSucursal:", error);
             }
-            throw error; // Lanzamos el error para que lo maneje quien haya llamado a la función
+            throw error;
         }
     },
 
     // 📝 Método para obtener todas las sucursales
     getSucursales: async (): Promise<SucursalProps[]> => {
-        // Realizamos una solicitud GET para obtener todas las sucursales
-        const response = await urlBase_API.get('/');
-        return response.data; // Retornamos la lista de sucursales
+        try {
+            const response = await urlBase_API.get<SucursalProps[]>('/');
+            return response.data;
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                console.error("Error en getSucursales:", error.response?.data ?? error.message);
+            } else {
+                console.error("Error en getSucursales:", error);
+            }
+            throw error;
+        }
     },
 
     // 🔄 Método para actualizar la sucursal por su ID

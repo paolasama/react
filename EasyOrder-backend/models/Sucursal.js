@@ -1,16 +1,25 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+const { sequelize } = require('../config/db');
+const { DataTypes } = require('sequelize');
 const Restaurante = require('./Restaurante'); // Importa el modelo Restaurante
+
 
 // Definir el modelo Sucursal
 const Sucursal = sequelize.define('Sucursal', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
   nombre: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: false
   },
   direccion: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: false
+  },
+  telefono: {
+    type: DataTypes.STRING
   },
   activo: {
     type: DataTypes.BOOLEAN,
@@ -20,18 +29,18 @@ const Sucursal = sequelize.define('Sucursal', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Restaurantes',
+      model: Restaurante,
       key: 'id',
     },
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   },
 }, {
-  tableName: 'Sucursales',  // Nombre correcto de la tabla
-  timestamps: false,        // Si no necesitas los campos createdAt y updatedAt
+  tableName: 'sucursales',
+  timestamps: true,
 });
 
-// Definir la asociación entre Sucursal y Restaurante
+// Define la asociación: cada sucursal pertenece a un restaurante
 Sucursal.belongsTo(Restaurante, { foreignKey: 'restaurante_id' });
 
 module.exports = Sucursal;

@@ -1,54 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { TextField, Button, Typography, Paper, Select, InputLabel, FormControl, MenuItem } from '@mui/material';
+import {
+  TextField, Button, Typography, Paper, Select, InputLabel,
+  FormControl, MenuItem, Alert
+} from '@mui/material';
+import { styled } from '@mui/system';
 
 // Definimos el tipo de las props para SucursalForm
 interface SucursalFormProps {
   onAddSucursal: (nuevaSucursal: { nombre: string; direccion: string; restauranteId: number }) => void;
 }
 
+// Estilos personalizados para el formulario
+const StyledPaper = styled(Paper)({
+  padding: '20px',
+  borderRadius: '10px',
+  backgroundColor: '#fff3e0', // Fondo cálido
+  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+});
+
+const StyledButton = styled(Button)({
+  backgroundColor: '#ff7043', 
+  fontWeight: 'bold',
+  '&:hover': {
+    backgroundColor: '#e64a19',
+  },
+});
+
 const SucursalForm: React.FC<SucursalFormProps> = ({ onAddSucursal }) => {
   const [nombre, setNombre] = useState('');
   const [direccion, setDireccion] = useState('');
-  const [restauranteId, setRestauranteId] = useState<number | ''>(''); // Modificado a `number | ''`
-  interface Restaurante {
-    id: number;
-    nombre: string;
-  }
-
-  const [restaurantes, setRestaurantes] = useState<Restaurante[]>([]);
+  const [restauranteId, setRestauranteId] = useState<number | ''>('');
+  const [restaurantes, setRestaurantes] = useState<{ id: number; nombre: string }[]>([]);
   const [error, setError] = useState('');
+  const [mensaje, setMensaje] = useState('');
 
   useEffect(() => {
     axios.get('http://localhost:3000/api/restaurantes')
-      .then((response) => {
-        setRestaurantes(response.data);
-      })
-      .catch((error) => {
-        console.error("Error al cargar restaurantes", error);
-      });
+      .then((response) => setRestaurantes(response.data))
+      .catch(() => setError('❌ Error al cargar los restaurantes'));
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Verificar si los campos están completos
     if (!nombre || !direccion || restauranteId === '') {
-      setError('Todos los campos son obligatorios');
+      setError('⚠️ Todos los campos son obligatorios');
       return;
     }
 
     setError('');
-    const nuevaSucursal = { nombre, direccion, restauranteId: Number(restauranteId) };  // Conversión explícita a number
-    onAddSucursal(nuevaSucursal);
+    onAddSucursal({ nombre, direccion, restauranteId: Number(restauranteId) });
+    setMensaje('✅ Sucursal registrada exitosamente');
+
     setNombre('');
     setDireccion('');
     setRestauranteId('');
   };
 
   return (
-    <Paper elevation={4} sx={{ padding: 4, borderRadius: 3 }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>Registrar Nueva Sucursal</Typography>
+    <StyledPaper elevation={4}>
+      <Typography variant="h5" sx={{ mb: 2, color: '#d84315', fontWeight: 'bold' }}>
+        🏪 Registrar Nueva Sucursal
+      </Typography>
+
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {mensaje && <Alert severity="success" sx={{ mb: 2 }}>{mensaje}</Alert>}
+
       <form onSubmit={handleSubmit}>
         <TextField
           label="Nombre de la Sucursal"
@@ -67,12 +85,11 @@ const SucursalForm: React.FC<SucursalFormProps> = ({ onAddSucursal }) => {
           sx={{ mb: 2 }}
         />
         <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>Restaurante</InputLabel>
+          <InputLabel id="select-restaurante-label">Restaurante</InputLabel>
           <Select
+            labelId="select-restaurante-label"
             value={restauranteId}
-            onChange={(e) => setRestauranteId(Number(e.target.value))}
-            label="Restaurante"
-            required
+            onChange={(e) => setRestauranteId(e.target.value === '' ? '' : Number(e.target.value))}
           >
             <MenuItem value="">Seleccione un restaurante</MenuItem>
             {restaurantes.map((restaurante) => (
@@ -83,10 +100,11 @@ const SucursalForm: React.FC<SucursalFormProps> = ({ onAddSucursal }) => {
           </Select>
         </FormControl>
 
-        {error && <Typography color="error">{error}</Typography>}
-        <Button type="submit" variant="contained" color="primary" fullWidth>Registrar Sucursal</Button>
+        <StyledButton type="submit" variant="contained" fullWidth>
+           Registrar Sucursal
+        </StyledButton>
       </form>
-    </Paper>
+    </StyledPaper>
   );
 };
 

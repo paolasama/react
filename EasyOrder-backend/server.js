@@ -1,35 +1,52 @@
 require('dotenv').config();  // Cargar variables de entorno desde el archivo .env
 
 const express = require('express');
-const app = express();
-const sequelize = require('./config/db'); // Conexión a la base de datos
+const { connectDB } = require('./config/db'); // Se importa la función de conexión
 const cors = require('cors');
 
-// Middleware para analizar el cuerpo de las solicitudes POST
-app.use(express.json());  // Esto permite que puedas recibir datos JSON en los cuerpos de las solicitudes POST
-app.use(cors());  // Habilitar CORS
+const app = express(); // Instancia de Express
 
-// Importa las rutas correctamente
+// Deshabilitar la generación de ETag para que no se devuelva 304
+app.set('etag', false);
+
+// Middleware para parsear JSON y URL-encoded (asegúrate de que se ejecute antes de las rutas)
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Middleware para registrar peticiones entrantes (depuración)
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} body:`, req.body);
+  next();
+});
+
+app.use(cors());
+
+// Middleware para deshabilitar la caché durante desarrollo
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store');
+    next();
+});
+
+// Importa y usa las rutas desde la carpeta "routes"
 const restauranteRoutes = require('./routes/restauranteRoutes');
-const sucursalRoutes = require('./routes/sucursalRoutes');
-const mesasRoutes = require('./routes/mesasRoutes');
+// Si tienes otras rutas como sucursales, agrégalas
+// const sucursalRoutes = require('./routes/sucursalRoutes');
 
-// Usa las rutas con prefijos específicos
 app.use('/api/restaurantes', restauranteRoutes);
-app.use('/api/sucursales', sucursalRoutes);
-app.use('/api/mesas', mesasRoutes);
+// app.use('/api/sucursales', sucursalRoutes);
 
-// Sincroniza la base de datos
-sequelize.sync({ force: false })  // Sincroniza sin eliminar las tablas existentes
-  .then(() => {
-    console.log('Base de datos sincronizada');
-    // Iniciar el servidor solo después de sincronizar la base de datos
-    const port = process.env.PORT || 3000;  // Usar el puerto desde la variable de entorno o por defecto 3000
-    app.listen(port, () => {
-      console.log(`Servidor corriendo en http://localhost:${port}`);
+// Inicialización de conexión y sincronización del servidor
+async function startServer() {
+  try {
+    await connectDB();
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`Servidor escuchando en el puerto ${PORT}`);
     });
-  })
-  .catch((err) => {
-    console.error('Error al sincronizar la base de datos:', err);
-    process.exit(1); // Termina el proceso si hay un error en la sincronización
-  });
+  } catch (error) {
+    console.error('Error iniciando el servidor:', error.message, error.stack);
+    process.exit(1);
+  }
+}
+
+startServer();

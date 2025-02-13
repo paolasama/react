@@ -2,69 +2,101 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SucursalForm from '../../components/Administrador/Sucursal/indexFrom';
 import SucursalList from '../../components/Administrador/Sucursal/indexList';
+import { Container, Typography, Paper, Alert, Box } from '@mui/material';
+import { styled } from '@mui/system';
 
 // Definimos el tipo Sucursal correctamente
 interface Sucursal {
   id: number;
   nombre: string;
   direccion: string;
-  restauranteId: number; // Asegurarse de que restauranteId esté correctamente tipado
+  restauranteId: number;
   Restaurante: {
-    nombre: string; // Nombre del restaurante
+    nombre: string;
   };
 }
 
+// Estilos personalizados para la pantalla
+const StyledContainer = styled(Container)({
+  marginTop: '30px',
+  padding: '20px',
+  backgroundColor: '#fff3e0',
+  borderRadius: '10px',
+  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+});
+
+const StyledTitle = styled(Typography)({
+  textAlign: 'center',
+  fontSize: '28px',
+  fontWeight: 'bold',
+  color: '#d84315',
+  marginBottom: '20px',
+});
+
+const StyledPaper = styled(Paper)({
+  padding: '20px',
+  backgroundColor: '#ffcc80',
+  borderRadius: '10px',
+  boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
+});
+
 const SucursalScreen: React.FC = () => {
   const [sucursales, setSucursales] = useState<Sucursal[]>([]);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
+  // Función para obtener la lista de sucursales desde el backend
+  const obtenerSucursales = () => {
     axios.get('http://localhost:3000/api/sucursales')
-      .then((response) => {
+      .then(response => {
         setSucursales(response.data);
       })
-      .catch((error) => {
-        console.error("Error al cargar sucursales", error);
+      .catch(error => {
+        console.error('Error al obtener sucursales:', error);
+        setError('❌ Error al obtener sucursales');
       });
+  };
+
+  useEffect(() => {
+    obtenerSucursales();
   }, []);
 
-  // Función que se pasa como prop para agregar una sucursal
-  const addSucursal = (nuevaSucursal: Sucursal) => {
-    setSucursales((prevSucursales) => [...prevSucursales, nuevaSucursal]);
+  // Callback para agregar una nueva sucursal
+  const onAddSucursal = (nuevaSucursal: { nombre: string; direccion: string; restauranteId: number }) => {
+    const payload = {
+      nombre: nuevaSucursal.nombre,
+      direccion: nuevaSucursal.direccion,
+      restaurante_id: nuevaSucursal.restauranteId,
+    };
+
+    axios.post('http://localhost:3000/api/sucursales', payload)
+      .then(() => {
+        obtenerSucursales();
+      })
+      .catch(error => {
+        console.error('Error al agregar sucursal:', error);
+        setError('❌ Error al agregar sucursal');
+      });
   };
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Gestión de Sucursales</h1>
-      {/* Pasamos la función addSucursal como prop */}
-      <SucursalForm onAddSucursal={(nuevaSucursal: { nombre: string; direccion: string; restauranteId: number; }) => {
-        axios.post('http://localhost:3000/api/sucursales', nuevaSucursal)
-          .then((response) => {
-            addSucursal(response.data);
-          })
-          .catch((error) => {
-            console.error("Error al crear la sucursal", error);
-          });
-      }} />
-      {/* Le pasamos el estado sucursales al componente SucursalList */}
-      <SucursalList sucursales={sucursales} />
-    </div>
-  );
-};
+    <StyledContainer>
+      <StyledTitle>🍽️ Gestión de Sucursales</StyledTitle>
+      
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
-const styles = {
-  container: {
-    margin: '20px auto',
-    maxWidth: '800px',
-    padding: '20px',
-    background: '#f9f9f9',
-    borderRadius: '8px',
-    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-  },
-  title: {
-    textAlign: 'center' as const,
-    fontSize: '24px',
-    marginBottom: '20px',
-  },
+      <StyledPaper elevation={3}>
+        <SucursalForm onAddSucursal={onAddSucursal} />
+      </StyledPaper>
+
+      <Box mt={3}>
+        <SucursalList sucursales={sucursales} />
+      </Box>
+    </StyledContainer>
+  );
 };
 
 export default SucursalScreen;

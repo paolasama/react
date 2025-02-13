@@ -1,11 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const mesasController = require('../controllers/mesasController');
+const Mesa = require('../models/Mesa');
 
-// Ruta GET para obtener todas las mesas
-router.get('/', mesasController.obtenerMesas);
+router.get('/', async (req, res) => {
+    try {
+      const mesas = await Mesa.findAll();
+      res.status(200).json(mesas);
+    } catch (error) {
+      // Temporalmente puedes hacer: console.error(error);
+      res.status(500).json({ error: 'Error al obtener las mesas' });
+    }
+  });
 
-// Ruta POST para crear una nueva mesa
-router.post('/', mesasController.crearMesa);
-
-module.exports = router;  // Asegúrate de exportar el router
+module.exports = router;
