@@ -1,25 +1,14 @@
 require('dotenv').config();
 const { Sequelize } = require('sequelize');
 
-let sequelize;
-
-if (process.env.USE_DUMMY_DB === 'true') {
-  // Modo dummy: simulamos la conexión a la base de datos.
-  sequelize = {
-    authenticate: async () => {
-      console.log('Dummy DB: authenticate OK');
-    },
-    sync: async () => {
-      console.log('Dummy DB: sync OK');
-    },
-  };
-} else {
-  // Modo real: utilizar SQLite (o la cadena de conexión definida en DB_CONNECTION_STRING)
-  sequelize = new Sequelize(
-    process.env.DB_CONNECTION_STRING || 'sqlite:./easyorder.sqlite',
-    { logging: false }
-  );
-}
+const sequelize = new Sequelize({
+  database: 'easyorderv2',
+  username: 'postgres',
+  password: '210202',
+  host: 'localhost',
+  dialect: 'postgres',
+  port: 5432
+});
 
 async function connectDB() {
   try {
