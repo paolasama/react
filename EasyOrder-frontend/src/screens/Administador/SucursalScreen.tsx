@@ -65,7 +65,7 @@ const SucursalScreen: React.FC = () => {
     const payload = {
       nombre: nuevaSucursal.nombre,
       direccion: nuevaSucursal.direccion,
-      restaurante_id: nuevaSucursal.restauranteId,
+      restauranteId: nuevaSucursal.restauranteId,
     };
 
     axios.post('http://localhost:3000/api/sucursales', payload)

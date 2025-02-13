@@ -1,20 +1,22 @@
-const Sucursal = require('../models/Sucursal');
-const Restaurante = require('../models/Restaurante');
+const { Sucursal, Restaurante } = require('../models');
 
 // Función para obtener todas las sucursales (incluyendo el nombre del restaurante)
 const getAllSucursales = async (req, res) => {
   try {
     console.log("Iniciando consulta de sucursales...");
     const sucursales = await Sucursal.findAll({
-      include: {
+      include: [{
         model: Restaurante,
-        attributes: ['nombre'],
-      },
+        as: 'Restaurante',
+        attributes: ['nombre']
+      }],
+      raw: false,
+      nest: true
     });
-    console.log("Sucursales encontradas:", sucursales);
+    console.log("Sucursales encontradas:", JSON.stringify(sucursales, null, 2));
     res.json(sucursales);
   } catch (error) {
-    console.error('Error al obtener sucursales:', error.message, error.stack);
+    console.error("Error al obtener sucursales:", error.message, error.stack);
     res.status(500).json({ error: error.message });
   }
 };
@@ -22,33 +24,37 @@ const getAllSucursales = async (req, res) => {
 // Función para crear una nueva sucursal
 const createSucursal = async (req, res) => {
   try {
-    console.log('Contenido de req.body:', req.body);
-    const { nombre, direccion, activo, restaurante_id, restauranteId } = req.body;
-    const finalRestauranteId = restaurante_id || restauranteId;
-    if (!finalRestauranteId) {
-      console.log('No se recibió restaurante_id ni restauranteId. req.body:', req.body);
-      return res.status(400).json({ error: 'El campo restaurante_id es obligatorio' });
+    console.log("Datos recibidos para crear sucursal:", req.body);
+    // Se capturan ambas posibles propiedades: 'restauranteId' y 'restaurante_id'
+    const { nombre, direccion, activo, restauranteId, restaurante_id } = req.body;
+    // Se utiliza el que tenga valor (priorizando 'restauranteId') y se convierte explícitamente a número
+    const rawRestauranteId = restauranteId || restaurante_id;
+    const finalRestauranteId = Number(rawRestauranteId);
+    
+    if (!nombre || nombre.trim() === "") {
+      console.error("Falta el campo 'nombre' para la sucursal.");
+      return res.status(400).json({ error: "El campo 'nombre' es obligatorio." });
     }
+    if (!finalRestauranteId) {
+      console.error("Falta el campo 'restauranteId' para la sucursal o no es un número válido.");
+      return res.status(400).json({ error: "El campo 'restauranteId' es obligatorio." });
+    }
+    
     const nuevaSucursal = await Sucursal.create({
       nombre,
-      direccion,
-      activo,
-      restaurante_id: finalRestauranteId,
+      direccion: direccion || null,
+      activo: typeof activo === 'boolean' ? activo : true,
+      restauranteId: finalRestauranteId
     });
-    const sucursalConRestaurante = await Sucursal.findByPk(nuevaSucursal.id, {
-      include: {
-        model: Restaurante,
-        attributes: ['nombre'],
-      },
-    });
-    res.status(201).json(sucursalConRestaurante);
+    console.log("Sucursal creada exitosamente:", nuevaSucursal);
+    res.status(201).json(nuevaSucursal);
   } catch (error) {
-    console.error('Error al crear sucursal:', error.message, error.stack);
+    console.error("Error al crear sucursal:", error.message, error.stack);
     res.status(500).json({ error: error.message });
   }
 };
 
 module.exports = {
   getAllSucursales,
-  createSucursal,
+  createSucursal
 };

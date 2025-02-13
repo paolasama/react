@@ -33,10 +33,20 @@ module.exports = {
       restaurante_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Restaurantes', // Asegúrate de que la tabla 'Restaurantes' ya esté creada
+          model: 'restaurantes', // Debe coincidir con el nombre en la BD
           key: 'id'
         },
         onDelete: 'SET NULL',
+        onUpdate: 'CASCADE'
+      },
+      sucursal_id: { 
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'sucursales', // Debe coincidir con el nombre en la BD
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
       createdAt: {

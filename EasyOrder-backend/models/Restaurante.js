@@ -1,5 +1,5 @@
-const { sequelize } = require('../config/db');
 const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/db');
 
 if (process.env.USE_DUMMY_DB === 'true') {
   // Datos dummy iniciales para restaurantes
@@ -8,7 +8,7 @@ if (process.env.USE_DUMMY_DB === 'true') {
     { id: 2, nombre: "Restaurante B", direccion: "Calle 2", activo: true, createdAt: new Date(), updatedAt: new Date() },
   ];
   
-  // Simulamos los métodos del modelo real
+  // Simular los métodos del modelo real
   const Restaurante = {
     findAll: async () => {
       console.log('Dummy DB: findAll() llamado');
@@ -30,7 +30,7 @@ if (process.env.USE_DUMMY_DB === 'true') {
 
   module.exports = Restaurante;
 } else {
-  // Modelo real utilizando Sequelize (requiere tener instalado sqlite3 u otro paquete)
+  // Modelo real utilizando Sequelize (requiere tener instalado sqlite3 o el adaptador correspondiente)
   const Restaurante = sequelize.define(
     'Restaurante',
     {
@@ -44,5 +44,14 @@ if (process.env.USE_DUMMY_DB === 'true') {
       timestamps: true,
     }
   );
+
+  // Definimos que un Restaurante puede tener muchas Sucursales
+  Restaurante.associate = (models) => {
+    Restaurante.hasMany(models.Sucursal, {
+      as: 'Sucursales',
+      foreignKey: 'restauranteId'
+    });
+  };
+
   module.exports = Restaurante;
 }
