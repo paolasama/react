@@ -1,6 +1,6 @@
 import { Container, Box, Paper, Typography } from '@mui/material';
-import MesaForm from '../../components/Administrador/Mesa/indexFrom';
-import MesaList from '../../components/Administrador/Mesa/indexList';
+import MesaForm from '../../../components/Administrador/Mesa/indexFrom';
+import MesaList from '../../../components/Administrador/Mesa/indexList';
 
 function MesaScreen() {
   const handleSuccess = () => {

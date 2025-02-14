@@ -1,6 +1,5 @@
-// models/index.js
-const { Sequelize } = require('sequelize');
-const { sequelize } = require('../config/db');
+// EasyOrder-backend/models/index.js
+// ... código existente
 const Restaurante = require('./Restaurante'); // Verifica que el nombre de la ruta sea correcto
 const Sucursal = require('./Sucursal');
 const Mesa = require('./Mesa');
@@ -19,6 +18,16 @@ if (process.env.USE_DUMMY_DB !== 'true') {
     foreignKey: 'restauranteId',
     as: 'Restaurante'
   });
+
+ // Agregar asociaciones para Mesa
+ Mesa.belongsTo(Restaurante, {
+   foreignKey: 'restauranteId',
+   as: 'Restaurante'
+ });
+ Mesa.belongsTo(Sucursal, {
+   foreignKey: 'sucursalId',
+   as: 'Sucursal'
+ });
 }
 
 // Sincronización secuencial de modelos: primero Restaurante, luego Sucursal y Mesa (si corresponde)
@@ -42,8 +51,5 @@ async function syncModels() {
     throw error;
   }
 }
-
-// Se elimina la llamada inmediata a syncModels()
-// Ahora se exporta la función para poder invocarla desde server.js
 
 module.exports = { Restaurante, Sucursal, Mesa, sequelize, syncModels };

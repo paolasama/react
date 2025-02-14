@@ -1,11 +1,11 @@
 import { FunctionComponent, useState, useEffect } from 'react';
 import { Box, Typography, Divider, Alert } from '@mui/material';
-import RestauranteForm from '../../components/Administrador/Restaurante/indexFrom';
-import RestauranteList from '../../components/Administrador/Restaurante/indexList';
+import RestauranteForm from '../../../components/Administrador/Restaurante/indexFrom';
+import RestauranteList from '../../../components/Administrador/Restaurante/indexList';
 import servicioRestaurante, {
   RestauranteProps,
   NuevoRestauranteProps,
-} from '../../services/Administrador/servicioRestaurante';
+} from '../../../services/Administrador/servicioRestaurante';
 
 const RestaurantesScreen: FunctionComponent = () => {
   const [restaurantes, setRestaurantes] = useState<RestauranteProps[]>([]);

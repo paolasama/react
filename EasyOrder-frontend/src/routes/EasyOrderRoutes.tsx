@@ -2,12 +2,12 @@ import { FunctionComponent } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // 📌 Pantallas de Administrador
-import RestaurantesScreen from '../screens/Administador/RestaurantesScreen';
-import SucursalScreen from '../screens/Administador/SucursalScreen';
-import MesaScreen from '../screens/Administador/MesaScreen';
+import RestaurantesScreen from '../screens/Administador/Restaurante/RestaurantesScreen';
+import SucursalScreen from '../screens/Administador/Sucursal/SucursalScreen';
+import MesaScreen from '../screens/Administador/Mesa/MesaScreen';
 
 // 📌 Pantallas de Cliente
-import MenuScreen from '../screens/Cliente/Menu';
+import MenuScreen from '../screens/Cliente/Menu/MenuScreen';
 import MiOrdenScreen from '../screens/Cliente/OrdenarPedido';
 import DetallePlatillo from '../screens/Cliente/Menu/DetallePlatillo';
 
@@ -29,7 +29,7 @@ const EasyOrderRoutes: FunctionComponent = () => {
                 <Route path="/admin/mesas" element={<MesaScreen />} />
 
                 {/* Rutas de cliente */}
-                <Route path="/menu" element={<MenuScreen />} />
+                <Route path="/menu" element={<MenuScreen />} />                
                 <Route path="/mi-orden" element={<MiOrdenScreen />} />
                 <Route path="/detalle-platillo/:id" element={<DetallePlatillo />} />
 

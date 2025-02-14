@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import SucursalForm from '../../components/Administrador/Sucursal/indexFrom';
-import SucursalList from '../../components/Administrador/Sucursal/indexList';
+import SucursalForm from '../../../components/Administrador/Sucursal/indexFrom';
+import SucursalList from '../../../components/Administrador/Sucursal/indexList';
 import { Container, Typography, Paper, Alert, Box } from '@mui/material';
 import { styled } from '@mui/system';
 
