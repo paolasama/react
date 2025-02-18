@@ -24,12 +24,14 @@ const sucursalRoutes = require('./routes/sucursalRoutes');
 const mesasRoutes = require('./routes/mesasRoutes');
 const menuRoutes = require("./routes/menuRoutes");
 const menuItemRoutes = require("./routes/menuItemRoutes");
+const categoriaRoutes = require("./routes/categoriaRoutes");
 
 app.use('/api/restaurantes', restauranteRoutes);
 app.use('/api/sucursales', sucursalRoutes);
 app.use('/api/mesas', mesasRoutes);
 app.use('/api/menus', menuRoutes);
 app.use('/api/menu-items', menuItemRoutes);
+app.use('/api/categorias', categoriaRoutes);
 
 // Función para sembrar datos dummy en caso de que no existan
 async function seedDatabase() {

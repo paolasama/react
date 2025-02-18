@@ -15,11 +15,13 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
+/** Interfaz para la categoría (usada en el select) */
 interface Categoria {
   id: number;
   nombre: string;
 }
 
+/** Tipo de datos que el formulario enviará al registrar */
 export interface MenuItemFormData {
   nombre: string;
   descripcion: string;
@@ -29,32 +31,44 @@ export interface MenuItemFormData {
   imagen?: File;
 }
 
+/** Props del componente */
 interface MenuItemFormProps {
   onSubmit: (nuevoItem: MenuItemFormData) => void;
 }
 
 export default function MenuItemForm({ onSubmit }: MenuItemFormProps) {
+  // Estados para los campos del formulario
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState("");
-  // Ahora usamos "number | null" en vez de "number | ''"
+
+  // Manejar categoría como number | null
   const [categoriaId, setCategoriaId] = useState<number | null>(null);
+
   const [activo, setActivo] = useState(true);
   const [imagen, setImagen] = useState<File | null>(null);
+
+  // Lista de categorías para el select
   const [categorias, setCategorias] = useState<Categoria[]>([]);
 
+  // Cargar categorías al montar el componente
   useEffect(() => {
-    axios.get("http://localhost:3000/api/categorias")
-      .then(res => setCategorias(res.data))
-      .catch(err => console.error("Error al cargar categorías:", err));
+    axios
+      .get("http://localhost:3000/api/categorias")
+      .then((res) => setCategorias(res.data))
+      .catch((err) => console.error("Error al cargar categorías:", err));
   }, []);
 
+  // Manejar submit
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validar campos mínimos
     if (!nombre.trim() || !descripcion.trim() || !precio.trim() || categoriaId === null) {
       return;
     }
 
+    // Construir el objeto que se enviará al padre
     const data: MenuItemFormData = {
       nombre,
       descripcion,
@@ -111,22 +125,23 @@ export default function MenuItemForm({ onSubmit }: MenuItemFormProps) {
         />
 
         <FormControl fullWidth>
-          <InputLabel>Seleccione una categoría</InputLabel>
+          <InputLabel id="categoria-label">Categoría</InputLabel>
           <Select
-            label="Seleccione una categoría"
-            // Si categoriaId es null, mostramos ""
+            labelId="categoria-label"
+            label="Categoría"
             value={categoriaId === null ? "" : categoriaId}
             onChange={(e) => {
-              // Si e.target.value es "", entonces no eligieron nada => null
-              if (e.target.value === "") {
-                setCategoriaId(null);
-              } else {
-                setCategoriaId(Number(e.target.value));
-              }
+              const val = e.target.value;
+              setCategoriaId(val === "" ? null : Number(val));
             }}
           >
-            <MenuItem value="">Seleccione una categoría</MenuItem>
-            {categorias.map(cat => (
+            {/* Menú disabled como placeholder */}
+            <MenuItem value="" disabled style={{ color: "#999" }}>
+              Seleccione una categoría
+            </MenuItem>
+
+            {/* Opciones reales */}
+            {categorias.map((cat) => (
               <MenuItem key={cat.id} value={cat.id}>
                 {cat.nombre}
               </MenuItem>

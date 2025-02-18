@@ -8,4 +8,5 @@ router.get('/', getAllRestaurantes);
 // Ruta para crear un restaurante
 router.post('/', createRestaurante);
 
+
 module.exports = router;
