@@ -1,102 +1,136 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import SucursalForm from '../../../components/Administrador/Sucursal/indexFrom';
-import SucursalList from '../../../components/Administrador/Sucursal/indexList';
-import { Container, Typography, Paper, Alert, Box } from '@mui/material';
-import { styled } from '@mui/system';
+import { useEffect, useState } from "react";
+import { Container, Box, Typography } from "@mui/material";
+import SucursalForm from "../../../components/Administrador/Sucursal/SucursalFrom";
+import SucursalList from "../../../components/Administrador/Sucursal/SucursalList";
+import axios from "axios";
 
-// Definimos el tipo Sucursal correctamente
+interface Restaurante {
+  id: number;
+  nombre: string;
+}
+
 interface Sucursal {
   id: number;
   nombre: string;
   direccion: string;
-  restauranteId: number;
-  Restaurante: {
+  activo: boolean;
+  restaurante_id: number;
+  restaurante?: {
+    id: number;
     nombre: string;
   };
 }
 
-// Estilos personalizados para la pantalla
-const StyledContainer = styled(Container)({
-  marginTop: '30px',
-  padding: '20px',
-  backgroundColor: '#fff3e0',
-  borderRadius: '10px',
-  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-});
-
-const StyledTitle = styled(Typography)({
-  textAlign: 'center',
-  fontSize: '28px',
-  fontWeight: 'bold',
-  color: '#d84315',
-  marginBottom: '20px',
-});
-
-const StyledPaper = styled(Paper)({
-  padding: '20px',
-  backgroundColor: '#ffcc80',
-  borderRadius: '10px',
-  boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
-});
-
-const SucursalScreen: React.FC = () => {
+export default function SucursalScreen() {
   const [sucursales, setSucursales] = useState<Sucursal[]>([]);
-  const [error, setError] = useState('');
+  const [restaurantes, setRestaurantes] = useState<Restaurante[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  // Función para obtener la lista de sucursales desde el backend
-  const obtenerSucursales = () => {
-    axios.get('http://localhost:3000/api/sucursales')
-      .then(response => {
-        setSucursales(response.data);
-      })
-      .catch(error => {
-        console.error('Error al obtener sucursales:', error);
-        setError('❌ Error al obtener sucursales');
-      });
+  // Ajusta esta URL a tu entorno
+  const API_BASE_URL = "http://localhost:3000/api";
+
+  /**
+   * Cargar sucursales desde el backend
+   */
+  const fetchSucursales = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/sucursales`);
+      setSucursales(response.data);
+      setError(false);
+    } catch (err) {
+      console.error("Error al obtener sucursales:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Cargar restaurantes para el select
+   */
+  const fetchRestaurantes = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/restaurantes`);
+      setRestaurantes(response.data);
+    } catch (err) {
+      console.error("Error al obtener restaurantes:", err);
+    }
   };
 
   useEffect(() => {
-    obtenerSucursales();
+    fetchSucursales();
+    fetchRestaurantes();
   }, []);
 
-  // Callback para agregar una nueva sucursal
-  const onAddSucursal = (nuevaSucursal: { nombre: string; direccion: string; restauranteId: number }) => {
-    const payload = {
-      nombre: nuevaSucursal.nombre,
-      direccion: nuevaSucursal.direccion,
-      restauranteId: nuevaSucursal.restauranteId,
-    };
-
-    axios.post('http://localhost:3000/api/sucursales', payload)
-      .then(() => {
-        obtenerSucursales();
-      })
-      .catch(error => {
-        console.error('Error al agregar sucursal:', error);
-        setError('❌ Error al agregar sucursal');
-      });
+  /**
+   * Manejar creación de sucursal
+   */
+  const handleCreateSucursal = async (nueva: {
+    nombre: string;
+    direccion: string;
+    restaurante_id: number;
+  }) => {
+    try {
+      await axios.post(`${API_BASE_URL}/sucursales`, nueva);
+      fetchSucursales(); // refrescar la lista
+    } catch (err) {
+      console.error("Error al crear sucursal:", err);
+    }
   };
 
+  /**
+   * Manejar toggle de activo/inactivo
+   */
+  const handleToggle = async (id: number) => {
+    try {
+      // asumiendo que tu backend define PUT /sucursales/:id/toggle
+      await axios.put(`${API_BASE_URL}/sucursales/${id}/toggle`);
+      fetchSucursales();
+    } catch (err) {
+      console.error("Error al cambiar estado de sucursal:", err);
+    }
+  };
+
+  /**
+   * Manejar eliminación de sucursal
+   */
+  const handleDelete = async (id: number) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/sucursales/${id}`);
+      fetchSucursales();
+    } catch (err) {
+      console.error("Error al eliminar sucursal:", err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Container maxWidth="md">
+        <Box sx={{ mt: 4, p: 3 }}>
+          <Typography>Cargando sucursales...</Typography>
+        </Box>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="md">
+        <Box sx={{ mt: 4, p: 3 }}>
+          <Typography color="error">Error al cargar sucursales.</Typography>
+        </Box>
+      </Container>
+    );
+  }
+
   return (
-    <StyledContainer>
-      <StyledTitle>🍽️ Gestión de Sucursales</StyledTitle>
-      
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-
-      <StyledPaper elevation={3}>
-        <SucursalForm onAddSucursal={onAddSucursal} />
-      </StyledPaper>
-
-      <Box mt={3}>
-        <SucursalList sucursales={sucursales} />
+    <Container maxWidth="md">
+      <Box sx={{ mt: 4, p: 3 }}>
+        <SucursalForm onCreate={handleCreateSucursal} restaurantes={restaurantes} />
+        <SucursalList sucursales={sucursales} onToggle={handleToggle} onDelete={handleDelete} />
       </Box>
-    </StyledContainer>
+    </Container>
   );
-};
-
-export default SucursalScreen;
+}

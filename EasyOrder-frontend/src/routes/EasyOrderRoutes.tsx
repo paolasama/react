@@ -9,7 +9,7 @@ import MesaScreen from '../screens/Administador/Mesa/MesaScreen';
 // 📌 Pantallas de Cliente
 import MenuScreen from '../screens/Cliente/Menu/MenuScreen';
 import MiOrdenScreen from '../screens/Cliente/OrdenarPedido';
-import DetallePlatillo from '../screens/Cliente/Menu/DetallePlatillo';
+import MenuItemsScreen from '../screens/Administador/MenuItem/MenuItemScreen';
 
 // 📌 Pantalla de Login
 import LoginForm from '../screens/Login/InicioSesion';
@@ -31,10 +31,9 @@ const EasyOrderRoutes: FunctionComponent = () => {
                 {/* Rutas de cliente */}
                 <Route path="/menu" element={<MenuScreen />} />                
                 <Route path="/mi-orden" element={<MiOrdenScreen />} />
-                <Route path="/detalle-platillo/:id" element={<DetallePlatillo />} />
-
                 {/* Ruta para iniciar sesión */}
                 <Route path="/login" element={<LoginForm />} />
+                <Route path="/admin/menu-items" element={<MenuItemsScreen />} />
 
                 {/* Ruta de error para cualquier ruta no encontrada */}
                 <Route path="*" element={<NotFoundScreen />} />

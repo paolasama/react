@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
-const { connectDB } = require('./config/db');
 const cors = require('cors');
+const { connectDB } = require('./config/db');
 const { syncModels } = require('./models/index');
 
 const app = express();
@@ -10,6 +10,7 @@ app.set('etag', false);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use(express.static('uploads'));
 
 // Deshabilitar caché durante el desarrollo
 app.use((req, res, next) => {
@@ -21,10 +22,14 @@ app.use((req, res, next) => {
 const restauranteRoutes = require('./routes/restauranteRoutes');
 const sucursalRoutes = require('./routes/sucursalRoutes');
 const mesasRoutes = require('./routes/mesasRoutes');
+const menuRoutes = require("./routes/menuRoutes");
+const menuItemRoutes = require("./routes/menuItemRoutes");
 
 app.use('/api/restaurantes', restauranteRoutes);
 app.use('/api/sucursales', sucursalRoutes);
 app.use('/api/mesas', mesasRoutes);
+app.use('/api/menus', menuRoutes);
+app.use('/api/menu-items', menuItemRoutes);
 
 // Función para sembrar datos dummy en caso de que no existan
 async function seedDatabase() {
@@ -42,11 +47,10 @@ async function seedDatabase() {
       console.log('Restaurante dummy creado:', nuevoRestaurante.dataValues);
 
       // Crear una Sucursal dummy vinculada a ese restaurante
-      const { Sucursal } = require('./models/index'); // Asegúrate que Sucursal esté exportado en index.js
       const nuevaSucursal = await Sucursal.create({
         nombre: 'Sucursal Principal',
         direccion: 'Av. Principal 456',
-        restauranteId: nuevoRestaurante.id, 
+        restaurante_id: nuevoRestaurante.id,
         activo: true
       });
       console.log('Sucursal dummy creada:', nuevaSucursal.dataValues);

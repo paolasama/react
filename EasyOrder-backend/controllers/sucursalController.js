@@ -1,60 +1,99 @@
-const { Sucursal, Restaurante } = require('../models');
+const { Sucursal, Restaurante } = require("../models");
 
-// Función para obtener todas las sucursales (incluyendo el nombre del restaurante)
-const getAllSucursales = async (req, res) => {
+// ✅ Obtener todas las sucursales
+exports.getAllSucursales = async (req, res) => {
   try {
-    console.log("Iniciando consulta de sucursales...");
     const sucursales = await Sucursal.findAll({
-      include: [{
-        model: Restaurante,
-        as: 'Restaurante',
-        attributes: ['nombre']
-      }],
-      raw: false,
-      nest: true
+      include: [
+        {
+          model: Restaurante,
+          as: "restaurante",
+          attributes: ["id", "nombre"],
+        },
+      ],
     });
-    console.log("Sucursales encontradas:", JSON.stringify(sucursales, null, 2));
+
+    // Verificamos si hay sucursales
+    if (!sucursales.length) {
+      return res.status(404).json({ error: "No hay sucursales registradas." });
+    }
+
     res.json(sucursales);
   } catch (error) {
-    console.error("Error al obtener sucursales:", error.message, error.stack);
-    res.status(500).json({ error: error.message });
+    console.error("❌ Error al obtener sucursales:", error.message);
+    res.status(500).json({ error: "Error al obtener las sucursales." });
   }
 };
 
-// Función para crear una nueva sucursal
-const createSucursal = async (req, res) => {
+// ✅ Crear una nueva sucursal
+exports.createSucursal = async (req, res) => {
   try {
-    console.log("Datos recibidos para crear sucursal:", req.body);
-    // Se capturan ambas posibles propiedades: 'restauranteId' y 'restaurante_id'
-    const { nombre, direccion, activo, restauranteId, restaurante_id } = req.body;
-    // Se utiliza el que tenga valor (priorizando 'restauranteId') y se convierte explícitamente a número
-    const rawRestauranteId = restauranteId || restaurante_id;
-    const finalRestauranteId = Number(rawRestauranteId);
-    
-    if (!nombre || nombre.trim() === "") {
-      console.error("Falta el campo 'nombre' para la sucursal.");
-      return res.status(400).json({ error: "El campo 'nombre' es obligatorio." });
+    console.log("📢 Datos recibidos para crear sucursal:", req.body);
+
+    const { nombre, direccion, restaurante_id } = req.body;
+
+    // Validaciones simples
+    if (!nombre || !direccion || !restaurante_id) {
+      return res
+        .status(400)
+        .json({ error: "Todos los campos son obligatorios." });
     }
-    if (!finalRestauranteId) {
-      console.error("Falta el campo 'restauranteId' para la sucursal o no es un número válido.");
-      return res.status(400).json({ error: "El campo 'restauranteId' es obligatorio." });
-    }
-    
+
+    // Crear la sucursal
     const nuevaSucursal = await Sucursal.create({
       nombre,
-      direccion: direccion || null,
-      activo: typeof activo === 'boolean' ? activo : true,
-      restauranteId: finalRestauranteId
+      direccion,
+      restaurante_id,
     });
-    console.log("Sucursal creada exitosamente:", nuevaSucursal);
+
+    console.log("✅ Sucursal creada:", nuevaSucursal);
     res.status(201).json(nuevaSucursal);
   } catch (error) {
-    console.error("Error al crear sucursal:", error.message, error.stack);
-    res.status(500).json({ error: error.message });
+    console.error("❌ Error al crear sucursal:", error.message);
+    res.status(500).json({ error: "Error al crear la sucursal." });
   }
 };
 
-module.exports = {
-  getAllSucursales,
-  createSucursal
+// ✅ Actualizar una sucursal
+exports.updateSucursal = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, direccion, activo, restaurante_id } = req.body;
+
+    const sucursal = await Sucursal.findByPk(id);
+    if (!sucursal) {
+      return res.status(404).json({ error: "Sucursal no encontrada." });
+    }
+
+    // Actualizar
+    await sucursal.update({
+      nombre,
+      direccion,
+      activo,
+      restaurante_id,
+    });
+
+    res.json({ mensaje: "Sucursal actualizada correctamente." });
+  } catch (error) {
+    console.error("❌ Error al actualizar la sucursal:", error);
+    res.status(500).json({ error: "Error al actualizar la sucursal." });
+  }
+};
+
+// ✅ Eliminar una sucursal
+exports.deleteSucursal = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const sucursal = await Sucursal.findByPk(id);
+    if (!sucursal) {
+      return res.status(404).json({ error: "Sucursal no encontrada." });
+    }
+
+    await sucursal.destroy();
+    res.json({ mensaje: "Sucursal eliminada correctamente." });
+  } catch (error) {
+    console.error("❌ Error al eliminar la sucursal:", error);
+    res.status(500).json({ error: "Error al eliminar la sucursal." });
+  }
 };

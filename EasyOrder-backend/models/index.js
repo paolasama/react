@@ -1,55 +1,47 @@
-// EasyOrder-backend/models/index.js
-// ... código existente
-const Restaurante = require('./Restaurante'); // Verifica que el nombre de la ruta sea correcto
-const Sucursal = require('./Sucursal');
-const Mesa = require('./Mesa');
+// models/index.js
+const { sequelize } = require("../config/db");
+const Restaurante = require("./Restaurante"); // Asegúrate de tener este modelo si es necesario
+const Sucursal = require("./Sucursal");
+const Mesa = require("./Mesa");
 
-// Requerir los modelos para que se inicialicen (si es necesario)
-require('./Restaurante');
-require('./Sucursal');
-
-// Definir asociaciones (modo real)
-if (process.env.USE_DUMMY_DB !== 'true') {
+// Asociaciones: si usas Restaurante y Sucursal
+if (!Restaurante.associations.sucursales) {
   Restaurante.hasMany(Sucursal, {
-    foreignKey: 'restauranteId',
-    as: 'sucursales'
+    foreignKey: "restaurante_id",
+    as: "sucursales",
   });
   Sucursal.belongsTo(Restaurante, {
-    foreignKey: 'restauranteId',
-    as: 'Restaurante'
+    foreignKey: "restaurante_id",
+    as: "restaurante",
   });
-
- // Agregar asociaciones para Mesa
- Mesa.belongsTo(Restaurante, {
-   foreignKey: 'restauranteId',
-   as: 'Restaurante'
- });
- Mesa.belongsTo(Sucursal, {
-   foreignKey: 'sucursalId',
-   as: 'Sucursal'
- });
 }
 
-// Sincronización secuencial de modelos: primero Restaurante, luego Sucursal y Mesa (si corresponde)
+// Asociación: Sucursal → Mesa
+if (!Sucursal.associations.mesas) {
+  Sucursal.hasMany(Mesa, {
+    foreignKey: "sucursal_id",
+    as: "mesas",
+  });
+  Mesa.belongsTo(Sucursal, {
+    foreignKey: "sucursal_id",
+    as: "sucursal",
+  });
+}
+
 async function syncModels() {
   try {
-    console.log("Sincronizando modelo Restaurante...");
-    await Restaurante.sync({ force: true });
-    console.log("Restaurante sincronizado correctamente.");
-
-    console.log("Sincronizando modelo Sucursal...");
-    await Sucursal.sync({ force: true });
-    console.log("Sucursal sincronizada correctamente.");
-
-    console.log("Sincronizando modelo Mesa...");
-    await Mesa.sync({ force: true });
-    console.log("Mesa sincronizado correctamente.");
-
-    console.log("Todos los modelos se sincronizaron correctamente.");
+    await sequelize.sync({ force: false });
+    console.log("✅ Todos los modelos se sincronizaron correctamente.");
   } catch (error) {
-    console.error("Error al sincronizar modelos:", error);
+    console.error("❌ Error al sincronizar modelos:", error);
     throw error;
   }
 }
 
-module.exports = { Restaurante, Sucursal, Mesa, sequelize, syncModels };
+module.exports = {
+  Restaurante,
+  Sucursal,
+  Mesa,
+  sequelize,
+  syncModels,
+};

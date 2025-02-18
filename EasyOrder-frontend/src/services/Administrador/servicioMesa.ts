@@ -1,36 +1,34 @@
-import axios from 'axios';
+// src/services/Administrador/servicioMesa.ts
+import axios from "axios";
 
-const API_URL = 'http://localhost:3000/api/mesas';
+interface Mesa {
+  id?: number;
+  nombre: string;
+  activo?: boolean;
+  // otros campos si los necesitas
+}
 
-const getMesas = async () => {
-  try {
-    const response = await axios.get(API_URL);
-    return response.data;
-  } catch (error) {
-    console.error("Error al obtener mesas:", error);
-    throw error;
-  }
+const API_URL = "http://localhost:3001/api";
+
+/**
+ * Obtener todas las mesas
+ */
+export const obtenerMesas = async (): Promise<Mesa[]> => {
+  const response = await axios.get<Mesa[]>(`${API_URL}/mesas`);
+  return response.data;
 };
 
-const postMesa = async (mesaData: { 
-  numeroMesa: string, 
-  capacidad: string, 
-  estado: string, 
-  restauranteId: number, 
-  sucursalId: number, 
-  activo?: boolean,
-  codigoQr?: string 
-}) => {
-  try {
-    const response = await axios.post(API_URL, mesaData);
-    return response.data;
-  } catch (error) {
-    console.error("Error al crear mesa:", error);
-    throw error;
-  }
+/**
+ * Crear una nueva mesa
+ */
+export const crearMesa = async (mesaData: Partial<Mesa>): Promise<Mesa> => {
+  const response = await axios.post<Mesa>(`${API_URL}/mesas`, mesaData);
+  return response.data;
 };
 
-export default {
-  getMesas,
-  postMesa
+/**
+ * Eliminar una mesa
+ */
+export const eliminarMesa = async (id: number): Promise<void> => {
+  await axios.delete(`${API_URL}/mesas/${id}`);
 };

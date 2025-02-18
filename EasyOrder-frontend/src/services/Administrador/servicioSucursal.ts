@@ -1,80 +1,33 @@
-import axios from 'axios';
-
-// 📌 Creación de una instancia base de la API usando axios
-const urlBase_API = axios.create({
-    baseURL: 'http://localhost:3000/api/sucursales', // URL base para todas las solicitudes
-    headers: {
-        'Content-Type': 'application/json', // Indicamos que los datos que enviamos/recibimos están en formato JSON
-    },
-});
-
-// 📌 Interfaces de tipos para las sucursales
-export interface SucursalProps {
+interface Sucursal {
     id: number;
     nombre: string;
     direccion: string;
-    activo: boolean;
-    restaurante_id: number;
-    createdAt: string;
-    updatedAt: string;
-    Restaurante?: {
-        nombre: string;
-    };
-}
-
-export interface NuevaSucursalProps {
-    nombre: string;
-    direccion: string;
-    restauranteId: number;
-}
-
-// 📌 Servicio para interactuar con la API de sucursales
-const servicioSucursal = {
-    // 📤 Método para enviar una nueva sucursal al backend
-    postSucursal: async (sucursalData: NuevaSucursalProps): Promise<SucursalProps> => {
-        console.log("Enviando datos:", sucursalData);
-        try {
-            const response = await urlBase_API.post<SucursalProps>('/', sucursalData);
-            console.log("Respuesta:", response.data);
-            return response.data;
-        } catch (error: unknown) {
-            if (axios.isAxiosError(error)) {
-                console.error("Error en postSucursal:", error.response?.data ?? error.message);
-            } else {
-                console.error("Error en postSucursal:", error);
-            }
-            throw error;
-        }
-    },
-
-    // 📝 Método para obtener todas las sucursales
-    getSucursales: async (): Promise<SucursalProps[]> => {
-        try {
-            const response = await urlBase_API.get<SucursalProps[]>('/');
-            return response.data;
-        } catch (error: unknown) {
-            if (axios.isAxiosError(error)) {
-                console.error("Error en getSucursales:", error.response?.data ?? error.message);
-            } else {
-                console.error("Error en getSucursales:", error);
-            }
-            throw error;
-        }
-    },
-
-    // 🔄 Método para actualizar la sucursal por su ID
-    putSucursalID: async (id: number, sucursalData: NuevaSucursalProps): Promise<SucursalProps> => {
-        // Realizamos una solicitud PUT para actualizar la sucursal
-        const response = await urlBase_API.put(`/${id}`, sucursalData);
-        return response.data; // Retornamos la sucursal actualizada
-    },
-
-    // 🗑 Método para eliminar una sucursal por su ID
-    deleteSucursal: async (id: number): Promise<void> => {
-        // Realizamos una solicitud DELETE para eliminar la sucursal
-        await urlBase_API.delete(`/${id}`);
-    },
-};
-
-// Exportamos el servicio para usarlo en otras partes de la aplicación
-export default servicioSucursal;
+    restaurante: string;
+    activa: boolean;
+  }
+  
+  const STORAGE_KEY = "sucursales";
+  
+  export const getSucursales = (): Sucursal[] => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  };
+  
+  export const addSucursal = (nuevaSucursal: Sucursal): void => {
+    const sucursales = getSucursales();
+    sucursales.push(nuevaSucursal);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sucursales));
+  };
+  
+  export const toggleSucursalActiva = (id: number): void => {
+    const sucursales = getSucursales().map((sucursal) =>
+      sucursal.id === id ? { ...sucursal, activa: !sucursal.activa } : sucursal
+    );
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sucursales));
+  };
+  
+  export const deleteSucursal = (id: number): void => {
+    const sucursales = getSucursales().filter((sucursal) => sucursal.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sucursales));
+  };
+  

@@ -1,57 +1,35 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db');
+const { DataTypes } = require("sequelize");
+const { sequelize } = require("../config/db");
 
-if (process.env.USE_DUMMY_DB === 'true') {
-  // Datos dummy iniciales para restaurantes
-  const dummyRestaurantes = [
-    { id: 1, nombre: "Restaurante A", direccion: "Calle 1", activo: true, createdAt: new Date(), updatedAt: new Date() },
-    { id: 2, nombre: "Restaurante B", direccion: "Calle 2", activo: true, createdAt: new Date(), updatedAt: new Date() },
-  ];
-  
-  // Simular los métodos del modelo real
-  const Restaurante = {
-    findAll: async () => {
-      console.log('Dummy DB: findAll() llamado');
-      return dummyRestaurantes;
+const Restaurante = sequelize.define(
+  "Restaurante",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
-    create: async (data) => {
-      console.log('Dummy DB: create() llamado con datos:', data);
-      const newId = dummyRestaurantes.length ? dummyRestaurantes[dummyRestaurantes.length - 1].id + 1 : 1;
-      const newRestaurante = {
-        id: newId,
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      dummyRestaurantes.push(newRestaurante);
-      return newRestaurante;
-    }
-  };
-
-  module.exports = Restaurante;
-} else {
-  // Modelo real utilizando Sequelize (requiere tener instalado sqlite3 o el adaptador correspondiente)
-  const Restaurante = sequelize.define(
-    'Restaurante',
-    {
-      id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-      nombre: { type: DataTypes.STRING, allowNull: false },
-      direccion: { type: DataTypes.STRING },
-      activo: { type: DataTypes.BOOLEAN, defaultValue: true },
+    nombre: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: { msg: "El nombre del restaurante no puede estar vacío." },
+      },
     },
-    {
-      tableName: 'restaurantes',
-      timestamps: true,
-    }
-  );
+    direccion: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    activo: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+  },
+  {
+    tableName: "restaurantes",
+    timestamps: true,    // Crea campos createdAt, updatedAt
+    underscored: true,   // Usa formato snake_case en las columnas
+  }
+);
 
-  // Definimos que un Restaurante puede tener muchas Sucursales
-  Restaurante.associate = (models) => {
-    Restaurante.hasMany(models.Sucursal, {
-      as: 'Sucursales',
-      foreignKey: 'restauranteId'
-    });
-  };
-
-  module.exports = Restaurante;
-}
+module.exports = Restaurante;

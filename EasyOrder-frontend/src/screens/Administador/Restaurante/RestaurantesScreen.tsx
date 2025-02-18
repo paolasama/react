@@ -1,7 +1,7 @@
 import { FunctionComponent, useState, useEffect } from 'react';
 import { Box, Typography, Divider, Alert } from '@mui/material';
-import RestauranteForm from '../../../components/Administrador/Restaurante/indexFrom';
-import RestauranteList from '../../../components/Administrador/Restaurante/indexList';
+import RestauranteForm from '../../../components/Administrador/Restaurante/RestauranteFrom';
+import RestauranteList from '../../../components/Administrador/Restaurante/RestauranteList';
 import servicioRestaurante, {
   RestauranteProps,
   NuevoRestauranteProps,
