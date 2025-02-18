@@ -1,3 +1,4 @@
+// models/Categoria.js
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/db");
 
@@ -6,19 +7,20 @@ const Categoria = sequelize.define(
   {
     id: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
       autoIncrement: true,
+      primaryKey: true,
     },
     nombre: {
       type: DataTypes.STRING,
       allowNull: false,
-    }
+    },
   },
   {
     tableName: "categorias",
     timestamps: true,
-    underscored: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
   }
 );
 
-module.exports = Categoria; 
+module.exports = Categoria;

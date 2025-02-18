@@ -1,5 +1,4 @@
 // src/components/Administrador/Menu/MenuList.tsx
-import React from "react";
 import {
   TableContainer,
   Table,

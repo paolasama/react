@@ -1,96 +1,60 @@
+// src/services/Administrador/servicioMenuItems.ts
 import axios from "axios";
 
-// Definir la URL base del backend
+/** URL base de tu backend */
 const API_URL = "http://localhost:3000/api/menu-items";
 
-// Interfaz del ítem de menú
+/** Interfaz para la tabla 'categorias' (usada en el select y en 'menu_items') */
+export interface Categoria {
+  id: number;
+  nombre: string;
+}
+
+/** Interfaz principal para un 'menu_item' (tal como viene de la BD) */
 export interface MenuItem {
-  id?: number;
+  id: number;            // ID en la BD
   nombre: string;
   descripcion: string;
   precio: number;
-  categoriaId: number;
+  categoriaId: number;   // FK numérica
   activo: boolean;
-  imagen?: File | null;
+  imagen?: File | null;  // Para subir imagen (opcional)
+  /** Si tu backend devuelve un objeto 'categoria', lo incluyes aquí */
+  categoria?: Categoria;
 }
 
-// Obtener todos los ítems de menú
-export const obtenerMenuItems = async () => {
-  try {
-    const response = await axios.get(API_URL);
-    return response.data;
-  } catch (error) {
-    console.error("Error al obtener los ítems del menú:", error);
-    throw error;
+/** Obtener todos los ítems de menú */
+export async function obtenerMenuItems(): Promise<MenuItem[]> {
+  const response = await axios.get(API_URL);
+  return response.data; // Se asume que el backend retorna un array de 'MenuItem'
+}
+
+/** Registrar un nuevo ítem de menú (con imagen) */
+export async function registrarMenuItem(nuevoItem: Omit<MenuItem, "id">): Promise<MenuItem> {
+  const formData = new FormData();
+  formData.append("nombre", nuevoItem.nombre);
+  formData.append("descripcion", nuevoItem.descripcion);
+  formData.append("precio", String(nuevoItem.precio));
+  formData.append("categoriaId", String(nuevoItem.categoriaId));
+  formData.append("activo", String(nuevoItem.activo));
+  if (nuevoItem.imagen) {
+    formData.append("imagen", nuevoItem.imagen);
   }
-};
 
-// Registrar un nuevo ítem de menú con imagen
-export const registrarMenuItem = async (nuevoItem: MenuItem) => {
-  try {
-    const formData = new FormData();
-    formData.append("nombre", nuevoItem.nombre);
-    formData.append("descripcion", nuevoItem.descripcion);
-    formData.append("precio", String(nuevoItem.precio));
-    formData.append("categoriaId", String(nuevoItem.categoriaId));
-    formData.append("activo", String(nuevoItem.activo));
-    if (nuevoItem.imagen) {
-      formData.append("imagen", nuevoItem.imagen);
-    }
+  const response = await axios.post(API_URL, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data; // Retorna el 'MenuItem' creado
+}
 
-    const response = await axios.post(API_URL, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+/** Cambiar estado activo/inactivo de un ítem */
+export async function cambiarEstadoMenuItem(id: number): Promise<MenuItem> {
+  // Suponiendo que tu backend tenga un endpoint PUT /:id/toggle
+  const response = await axios.put(`${API_URL}/${id}/toggle`);
+  return response.data;
+}
 
-    return response.data;
-  } catch (error) {
-    console.error("Error al registrar el ítem de menú:", error);
-    throw error;
-  }
-};
-
-// Cambiar estado activo/inactivo de un ítem
-export const cambiarEstadoMenuItem = async (id: number) => {
-  try {
-    const response = await axios.put(`${API_URL}/${id}/toggle`);
-    return response.data;
-  } catch (error) {
-    console.error("Error al cambiar estado del ítem de menú:", error);
-    throw error;
-  }
-};
-
-// Editar un ítem de menú existente
-export const editarMenuItem = async (id: number, itemActualizado: MenuItem) => {
-  try {
-    const formData = new FormData();
-    formData.append("nombre", itemActualizado.nombre);
-    formData.append("descripcion", itemActualizado.descripcion);
-    formData.append("precio", String(itemActualizado.precio));
-    formData.append("categoriaId", String(itemActualizado.categoriaId));
-    formData.append("activo", String(itemActualizado.activo));
-    if (itemActualizado.imagen) {
-      formData.append("imagen", itemActualizado.imagen);
-    }
-
-    const response = await axios.put(`${API_URL}/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error("Error al actualizar el ítem de menú:", error);
-    throw error;
-  }
-};
-
-// Eliminar un ítem de menú
-export const eliminarMenuItem = async (id: number) => {
-  try {
-    const response = await axios.delete(`${API_URL}/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error al eliminar el ítem de menú:", error);
-    throw error;
-  }
-};
+/** Eliminar un ítem de menú */
+export async function eliminarMenuItem(id: number): Promise<void> {
+  await axios.delete(`${API_URL}/${id}`);
+}

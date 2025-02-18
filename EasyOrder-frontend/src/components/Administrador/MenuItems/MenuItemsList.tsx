@@ -1,14 +1,32 @@
-import { Paper, Table, TableHead, TableBody, TableRow, TableCell, Switch, CircularProgress, Typography, Alert, Box } from "@mui/material";
+// src/components/Administrador/MenuItems/MenuItemList.tsx
+import {
+  Paper,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Switch,
+  CircularProgress,
+  Typography,
+  Alert,
+  Box
+} from "@mui/material";
 
+/** Tipo local para mostrar en la tabla */
 interface MenuItem {
   id: number;
   nombre: string;
   descripcion: string;
   precio: number;
-  categoria: string;
+  categoria?: {
+    id: number;
+    nombre: string;
+  };
   activo: boolean;
 }
 
+/** Props del componente de lista */
 interface MenuItemListProps {
   items: MenuItem[];
   loading: boolean;
@@ -16,7 +34,12 @@ interface MenuItemListProps {
   onToggle: (id: number) => void;
 }
 
-export default function MenuItemList({ items, loading, error, onToggle }: MenuItemListProps) {
+export default function MenuItemList({
+  items,
+  loading,
+  error,
+  onToggle
+}: MenuItemListProps) {
   return (
     <Paper sx={{ p: 2, mt: 2 }}>
       <Typography variant="h6" textAlign="center" gutterBottom>
@@ -49,14 +72,19 @@ export default function MenuItemList({ items, loading, error, onToggle }: MenuIt
             </TableRow>
           </TableHead>
           <TableBody>
-            {items.map(item => (
+            {items.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.nombre}</TableCell>
                 <TableCell>{item.descripcion}</TableCell>
                 <TableCell>${item.precio}</TableCell>
-                <TableCell>{item.categoria}</TableCell>
                 <TableCell>
-                  <Switch checked={item.activo} onChange={() => onToggle(item.id)} />
+                  {item.categoria ? item.categoria.nombre : "Sin categoría"}
+                </TableCell>
+                <TableCell>
+                  <Switch
+                    checked={item.activo}
+                    onChange={() => onToggle(item.id)}
+                  />
                 </TableCell>
               </TableRow>
             ))}

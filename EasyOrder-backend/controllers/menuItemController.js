@@ -1,90 +1,91 @@
+// controllers/menuItemController.js
 const MenuItem = require("../models/MenuItem");
 const Categoria = require("../models/Categoria");
 
-// Obtener todos los items de menú con detalles de categoría
+// Obtener todos los items
 exports.getMenuItems = async (req, res) => {
   try {
-    const menuItems = await MenuItem.findAll({
+    const items = await MenuItem.findAll({
       include: [
         {
           model: Categoria,
-          as: "Categoria",
+          as: "categoria",
           attributes: ["id", "nombre"],
         },
       ],
     });
-    return res.status(200).json(menuItems);
+    res.json(items);
   } catch (error) {
-    console.error("❌ Error al obtener los items de menú:", error);
-    return res.status(500).json({ error: "Error al obtener los items de menú" });
+    console.error("Error al obtener menu_items:", error);
+    res.status(500).json({ error: "Error al obtener menu_items" });
   }
 };
 
-// Crear un nuevo item de menú
+// Crear un item
 exports.createMenuItem = async (req, res) => {
   try {
-    const { nombre, descripcion, precio, categoriaId, activo } = req.body;
-    const imagen = req.file ? req.file.path : null; // Si hay imagen, guardar su URL
-
-    if (!nombre || !precio || !categoriaId) {
-      return res.status(400).json({ error: "Faltan campos requeridos." });
+    const { nombre, descripcion, precio, activo, imagen, categoria_id } = req.body;
+    
+    if (!nombre || precio === undefined) {
+      return res.status(400).json({ error: "Faltan campos requeridos" });
     }
 
-    const categoria = await Categoria.findByPk(categoriaId);
-    if (!categoria) {
-      return res.status(404).json({ error: "Categoría no encontrada." });
-    }
-
-    const nuevoMenuItem = await MenuItem.create({
+    const nuevoItem = await MenuItem.create({
       nombre,
       descripcion,
       precio,
-      categoriaId,
       activo: activo ?? true,
       imagen,
+      categoria_id,
     });
-
-    return res.status(201).json(nuevoMenuItem);
+    res.status(201).json(nuevoItem);
   } catch (error) {
-    console.error("❌ Error al registrar el item de menú:", error);
-    return res.status(500).json({ error: "Error al registrar el item de menú" });
+    console.error("Error al crear menu_item:", error);
+    res.status(500).json({ error: "Error al crear menu_item" });
   }
 };
 
-// Actualizar un item de menú
+
+// Actualizar un item
 exports.updateMenuItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, descripcion, precio, categoriaId, activo } = req.body;
-    const imagen = req.file ? req.file.path : undefined;
+    const { nombre, descripcion, precio, activo, imagen, categoria_id } =
+      req.body;
 
-    const menuItem = await MenuItem.findByPk(id);
-    if (!menuItem) {
-      return res.status(404).json({ error: "Item de menú no encontrado." });
+    const item = await MenuItem.findByPk(id);
+    if (!item) {
+      return res.status(404).json({ error: "MenuItem no encontrado" });
     }
 
-    await menuItem.update({ nombre, descripcion, precio, categoriaId, activo, imagen });
+    await item.update({
+      nombre,
+      descripcion,
+      precio,
+      activo,
+      imagen,
+      categoria_id,
+    });
 
-    return res.json({ mensaje: "Item de menú actualizado correctamente." });
+    res.json(item);
   } catch (error) {
-    console.error("❌ Error al actualizar el item de menú:", error);
-    return res.status(500).json({ error: "Error al actualizar el item de menú" });
+    console.error("Error al actualizar menu_item:", error);
+    res.status(500).json({ error: "Error al actualizar menu_item" });
   }
 };
 
-// Eliminar un item de menú
+// Eliminar un item
 exports.deleteMenuItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const menuItem = await MenuItem.findByPk(id);
-    if (!menuItem) {
-      return res.status(404).json({ error: "Item de menú no encontrado." });
+    const item = await MenuItem.findByPk(id);
+    if (!item) {
+      return res.status(404).json({ error: "MenuItem no encontrado" });
     }
-
-    await menuItem.destroy();
-    return res.json({ mensaje: "Item de menú eliminado correctamente." });
+    await item.destroy();
+    res.json({ message: "MenuItem eliminado correctamente" });
   } catch (error) {
-    console.error("❌ Error al eliminar el item de menú:", error);
-    return res.status(500).json({ error: "Error al eliminar el item de menú" });
+    console.error("Error al eliminar menu_item:", error);
+    res.status(500).json({ error: "Error al eliminar menu_item" });
   }
 };

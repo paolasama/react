@@ -1,14 +1,18 @@
+// routes/menuItemRoutes.js
 const express = require("express");
-const multer = require("multer");
 const router = express.Router();
 const menuItemController = require("../controllers/menuItemController");
 
-// Configuración de almacenamiento de imágenes con Multer
-const upload = multer({ dest: "uploads/" });
-
+// GET todos los items
 router.get("/", menuItemController.getMenuItems);
-router.post("/", upload.single("imagen"), menuItemController.createMenuItem);
-router.put("/:id", upload.single("imagen"), menuItemController.updateMenuItem);
+
+// POST crear item
+router.post("/", menuItemController.createMenuItem);
+
+// PUT actualizar item
+router.put("/:id", menuItemController.updateMenuItem);
+
+// DELETE eliminar item
 router.delete("/:id", menuItemController.deleteMenuItem);
 
 module.exports = router;
