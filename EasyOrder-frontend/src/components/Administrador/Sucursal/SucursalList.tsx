@@ -56,3 +56,4 @@ export default function SucursalList({ sucursales, onToggle, onDelete }: Sucursa
     </Paper>
   );
 }
+ 
