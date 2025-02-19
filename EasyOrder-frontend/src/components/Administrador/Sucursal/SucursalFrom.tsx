@@ -7,7 +7,7 @@ interface Restaurante {
 }
 
 interface SucursalFormProps {
-  restaurantes: Restaurante[]; // Lista de restaurantes para el select
+  restaurantes: Restaurante[];
   onCreate: (data: { nombre: string; direccion: string; restaurante_id: number }) => void;
 }
 
@@ -20,22 +20,27 @@ export default function SucursalForm({ restaurantes, onCreate }: SucursalFormPro
     e.preventDefault();
     if (!nombre || !direccion || restauranteId === "") return;
 
-    onCreate({
-      nombre,
-      direccion,
-      restaurante_id: Number(restauranteId),
-    });
+    onCreate({ nombre, direccion, restaurante_id: Number(restauranteId) });
 
-    // Limpiar formulario
     setNombre("");
     setDireccion("");
     setRestauranteId("");
   };
 
   return (
-    <Paper sx={{ p: 3, mb: 3 }}>
-      <Typography variant="h5" fontWeight="bold" textAlign="center" color="primary">
-        Registrar Sucursal
+    <Paper
+      sx={{
+        p: 4,
+        mb: 3,
+        borderRadius: 5,
+        boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.3)",
+        background: "rgba(255, 255, 255, 0.1)", // Fondo translúcido
+        backdropFilter: "blur(15px)", // Efecto vidrio
+        border: "1px solid rgba(255, 255, 255, 0.3)",
+      }}
+    >
+      <Typography variant="h5" align="center" sx={{ fontWeight: "bold", color: "secondary.main" }}>
+        🍷 Registrar Sucursal
       </Typography>
 
       <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
@@ -44,6 +49,7 @@ export default function SucursalForm({ restaurantes, onCreate }: SucursalFormPro
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
           required
+          InputProps={{ sx: { color: "white" } }}
         />
 
         <TextField
@@ -51,15 +57,12 @@ export default function SucursalForm({ restaurantes, onCreate }: SucursalFormPro
           value={direccion}
           onChange={(e) => setDireccion(e.target.value)}
           required
+          InputProps={{ sx: { color: "white" } }}
         />
 
         <FormControl fullWidth>
-          <InputLabel>Seleccione un restaurante</InputLabel>
-          <Select
-            value={restauranteId}
-            onChange={(e) => setRestauranteId(e.target.value as number)}
-            required
-          >
+          <InputLabel sx={{ color: "secondary.main" }}>Seleccione un restaurante</InputLabel>
+          <Select value={restauranteId} onChange={(e) => setRestauranteId(e.target.value as number)} required sx={{ color: "white" }}>
             <MenuItem value="">
               <em>-- Seleccionar --</em>
             </MenuItem>
@@ -71,8 +74,18 @@ export default function SucursalForm({ restaurantes, onCreate }: SucursalFormPro
           </Select>
         </FormControl>
 
-        <Button variant="contained" type="submit">
-          REGISTRAR SUCURSAL
+        <Button
+          variant="contained"
+          type="submit"
+          sx={{
+            bgcolor: "secondary.main",
+            color: "black",
+            fontSize: 16,
+            borderRadius: 20,
+            "&:hover": { bgcolor: "#B8860B" },
+          }}
+        >
+          ✨ REGISTRAR SUCURSAL
         </Button>
       </Box>
     </Paper>

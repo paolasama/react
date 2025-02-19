@@ -1,13 +1,8 @@
-// src/screens/Administrador/MenuScreen.tsx
 import { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box } from "@mui/material";
+import { Container, Paper, Typography, Box, CircularProgress, Snackbar, Alert } from "@mui/material";
 import MenuForm from "../../../components/Administrador/Menu/MenuFrom";
 import MenuList from "../../../components/Administrador/Menu/MenuList";
-import {
-  obtenerMenus,
-  crearMenu,
-  eliminarMenu,
-} from "../../../services/Administrador/servicioMenu";
+import { obtenerMenus, crearMenu, eliminarMenu } from "../../../services/Administrador/servicioMenu";
 import axios from "axios";
 
 interface Sucursal {
@@ -25,7 +20,6 @@ interface MenuItem {
   };
 }
 
-// Tipo local para la data que se envía para crear un menú
 interface MenuCreateData {
   nombre: string;
   activo: boolean;
@@ -38,15 +32,70 @@ export default function MenuScreen() {
   const [sucursales, setSucursales] = useState<Sucursal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  // Ajusta a tu backend real (puerto 3000 si Postman indica eso)
   const API_BASE_URL = "http://localhost:3000/api";
 
-  // Cargar menús
+  // Cargar menús y sucursales en paralelo
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const [menusData, sucursalesData] = await Promise.all([
+          obtenerMenus(),
+          axios.get<Sucursal[]>(`${API_BASE_URL}/sucursales`),
+        ]);
+        setMenus(menusData);
+        setSucursales(sucursalesData.data);
+        setError(false);
+      } catch (err) {
+        console.error("Error al cargar datos:", err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  // Crear menú
+  const handleCreateMenu = async (menuData: MenuCreateData) => {
+    try {
+      await crearMenu(menuData);
+      setSnackbarMessage("Menú registrado exitosamente 🎉");
+      setSnackbarOpen(true);
+      fetchMenus(); // recargar la lista
+    } catch (err) {
+      console.error("Error al crear menú:", err);
+      setSnackbarMessage("Error al crear menú");
+      setSnackbarOpen(true);
+    }
+  };
+
+  // Eliminar menú con confirmación visual de SweetAlert2
+  const handleDeleteMenu = async (id: number) => {
+    const confirmDelete = window.confirm("¿Seguro que deseas eliminar este menú? Esta acción no se puede deshacer.");
+  
+    if (!confirmDelete) return;
+  
+    try {
+      await eliminarMenu(id);
+      fetchMenus();
+      alert("Menú eliminado exitosamente.");
+    } catch (err) {
+      console.error("Error al eliminar menú:", err);
+      alert("Error al eliminar menú.");
+    }
+  };
+  
+
+  // Recargar menús
   const fetchMenus = async () => {
     setLoading(true);
     try {
-      const data = await obtenerMenus(); // Llama a servicioMenu
+      const data = await obtenerMenus();
       setMenus(data);
       setError(false);
     } catch (err) {
@@ -57,76 +106,51 @@ export default function MenuScreen() {
     }
   };
 
-  // Cargar sucursales
-  const fetchSucursales = async () => {
-    try {
-      const response = await axios.get<Sucursal[]>(`${API_BASE_URL}/sucursales`);
-      setSucursales(response.data);
-    } catch (err) {
-      console.error("Error al obtener sucursales:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchMenus();
-    fetchSucursales();
-  }, []);
-
-  // Crear menú
-  const handleCreateMenu = async (menuData: MenuCreateData) => {
-    try {
-      await crearMenu(menuData);
-      fetchMenus(); // recargar la lista
-    } catch (err) {
-      console.error("Error al crear menú:", err);
-    }
-  };
-
-  // Eliminar menú
-  const handleDeleteMenu = async (id: number) => {
-    if (!window.confirm("¿Seguro que deseas eliminar este menú?")) return;
-    try {
-      await eliminarMenu(id);
-      fetchMenus();
-    } catch (err) {
-      console.error("Error al eliminar menú:", err);
-    }
-  };
-
-  if (loading) {
-    return (
-      <Container maxWidth="sm">
-        <Box sx={{ mt: 4, p: 3 }}>
-          <Typography>Cargando menús...</Typography>
-        </Box>
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container maxWidth="sm">
-        <Box sx={{ mt: 4, p: 3 }}>
-          <Typography color="error">Error al cargar menús.</Typography>
-        </Box>
-      </Container>
-    );
-  }
-
   return (
-    <Container maxWidth="sm">
-      <Paper sx={{ mt: 4, p: 3 }}>
-        <Typography variant="h4" align="center" gutterBottom>
-          Gestión de Menús
+    <Container maxWidth="md">
+      <Paper sx={{ mt: 4, p: 3, bgcolor: "#f9f9f9", borderRadius: 3 }}>
+        <Typography variant="h4" align="center" gutterBottom color="primary">
+          🍽️ Gestión de Menús
         </Typography>
 
-        <MenuForm onCreate={handleCreateMenu} sucursales={sucursales} />
+        {/* Carga en progreso */}
+        {loading && (
+          <Box display="flex" justifyContent="center" my={3}>
+            <CircularProgress />
+          </Box>
+        )}
 
-        <Typography variant="h6" gutterBottom>
-          Lista de menús
-        </Typography>
-        <MenuList menus={menus} onDelete={handleDeleteMenu} />
+        {/* Error al cargar */}
+        {error && (
+          <Box sx={{ textAlign: "center", my: 2 }}>
+            <Typography color="error">Error al cargar menús. Intenta nuevamente.</Typography>
+          </Box>
+        )}
+
+        {!loading && !error && (
+          <>
+            {/* Formulario para agregar menú */}
+            <MenuForm onCreate={handleCreateMenu} sucursales={sucursales} />
+
+            {/* Lista de menús */}
+            <Typography variant="h6" gutterBottom>
+              📜 Lista de Menús
+            </Typography>
+            <MenuList menus={menus} onDelete={handleDeleteMenu} />
+          </>
+        )}
       </Paper>
+
+      {/* Snackbar de notificación */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+      >
+        <Alert severity="success" sx={{ width: "100%" }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

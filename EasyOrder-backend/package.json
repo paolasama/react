@@ -24,7 +24,8 @@
     "pg-connection-string": "^2.7.0",
     "pg-hstore": "^2.3.4",
     "pgtools": "^1.0.1",
-    "sequelize": "^6.37.5"
+    "sequelize": "^6.37.5",
+    "sweetalert2": "^11.17.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

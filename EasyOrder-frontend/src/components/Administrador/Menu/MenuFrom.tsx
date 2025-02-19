@@ -1,6 +1,6 @@
-// src/components/Administrador/Menu/MenuForm.tsx
 import React, { useState } from "react";
 import {
+  Paper,
   Box,
   TextField,
   Switch,
@@ -18,7 +18,6 @@ interface Sucursal {
   nombre: string;
 }
 
-// Tipo local para la data del formulario
 interface MenuFormData {
   nombre: string;
   activo: boolean;
@@ -31,7 +30,7 @@ interface MenuFormProps {
   sucursales: Sucursal[];
 }
 
-function MenuForm({ onCreate, sucursales }: MenuFormProps) {
+export default function MenuForm({ onCreate, sucursales }: MenuFormProps) {
   const [nombre, setNombre] = useState("");
   const [activo, setActivo] = useState(true);
   const [sucursalId, setSucursalId] = useState<number | "">("");
@@ -48,7 +47,6 @@ function MenuForm({ onCreate, sucursales }: MenuFormProps) {
     };
     onCreate(data);
 
-    // Limpiar formulario
     setNombre("");
     setActivo(true);
     setSucursalId("");
@@ -56,52 +54,67 @@ function MenuForm({ onCreate, sucursales }: MenuFormProps) {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mb: 3 }}>
-      <Typography variant="h6" gutterBottom>
-        Registrar nuevo menú
+    <Paper
+      sx={{
+        p: 2, // Reducir padding
+        mb: 2, // Reducir margen
+        borderRadius: 3,
+        boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.1)",
+        background: "#fff",
+        maxWidth: "50px", // Ancho más pequeño
+        mx: "auto", // Centrar
+      }}
+    >
+      <Typography
+        variant="h6"
+        fontWeight="bold"
+        textAlign="center"
+        color="primary"
+        sx={{ mb: 1 }}
+      >
+        📋 Registrar Menú
       </Typography>
 
-      <TextField
-        label="Nombre del Menú *"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-        fullWidth
-        required
-        sx={{ mb: 2 }}
-      />
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+        <TextField
+          label="Nombre *"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          fullWidth
+          required
+          size="small" // Hace el campo más pequeño
+        />
 
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel>Sucursal</InputLabel>
-        <Select
-          label="Sucursal"
-          value={sucursalId}
-          onChange={(e) => setSucursalId(e.target.value as number | "")}
+        <FormControl fullWidth size="small">
+          <InputLabel>Sucursal</InputLabel>
+          <Select value={sucursalId} onChange={(e) => setSucursalId(e.target.value as number | "")}>
+            <MenuItem value="">-- Seleccionar --</MenuItem>
+            {sucursales.map((suc) => (
+              <MenuItem key={suc.id} value={suc.id}>
+                {suc.nombre}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControlLabel
+          control={<Switch checked={activo} onChange={(e) => setActivo(e.target.checked)} color="primary" />}
+          label="Activo"
+        />
+
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          sx={{
+            fontWeight: "bold",
+            fontSize: "0.875rem", // Texto más pequeño
+            py: 1, // Padding vertical reducido
+          }}
         >
-          <MenuItem value="">-- Seleccione una sucursal --</MenuItem>
-          {sucursales.map((suc) => (
-            <MenuItem key={suc.id} value={suc.id}>
-              {suc.nombre}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControlLabel
-        control={
-          <Switch
-            checked={activo}
-            onChange={(e) => setActivo(e.target.checked)}
-          />
-        }
-        label="Activo"
-        sx={{ mb: 2 }}
-      />
-
-      <Button variant="contained" color="primary" type="submit" fullWidth>
-        REGISTRAR MENÚ
-      </Button>
-    </Box>
+          ✅ Registrar
+        </Button>
+      </Box>
+    </Paper>
   );
 }
-
-export default MenuForm;

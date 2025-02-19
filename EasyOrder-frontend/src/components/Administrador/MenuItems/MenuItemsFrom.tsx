@@ -1,4 +1,3 @@
-// src/components/Administrador/MenuItems/MenuItemForm.tsx
 import React, { useState, useEffect } from "react";
 import {
   Paper,
@@ -11,17 +10,18 @@ import {
   Switch,
   FormControlLabel,
   Button,
-  Typography
+  Typography,
+  Avatar,
 } from "@mui/material";
 import axios from "axios";
 
-/** Interfaz para la categoría (usada en el select) */
+/** Interfaz para la categoría */
 interface Categoria {
   id: number;
   nombre: string;
 }
 
-/** Tipo de datos que el formulario enviará al registrar */
+/** Tipo de datos para el formulario */
 export interface MenuItemFormData {
   nombre: string;
   descripcion: string;
@@ -33,25 +33,21 @@ export interface MenuItemFormData {
 
 /** Props del componente */
 interface MenuItemFormProps {
-  onSubmit: (nuevoItem: MenuItemFormData) => void;
+  onSubmit: (nuevoItem: FormData) => void;
 }
 
 export default function MenuItemForm({ onSubmit }: MenuItemFormProps) {
-  // Estados para los campos del formulario
+  // Estados del formulario
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState("");
-
-  // Manejar categoría como number | null
   const [categoriaId, setCategoriaId] = useState<number | null>(null);
-
   const [activo, setActivo] = useState(true);
   const [imagen, setImagen] = useState<File | null>(null);
-
-  // Lista de categorías para el select
+  const [imagenPreview, setImagenPreview] = useState<string | null>(null);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
 
-  // Cargar categorías al montar el componente
+  // Cargar categorías desde la API
   useEffect(() => {
     axios
       .get("http://localhost:3000/api/categorias")
@@ -59,26 +55,26 @@ export default function MenuItemForm({ onSubmit }: MenuItemFormProps) {
       .catch((err) => console.error("Error al cargar categorías:", err));
   }, []);
 
-  // Manejar submit
+  // Manejar envío del formulario
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validar campos mínimos
     if (!nombre.trim() || !descripcion.trim() || !precio.trim() || categoriaId === null) {
       return;
     }
 
-    // Construir el objeto que se enviará al padre
-    const data: MenuItemFormData = {
-      nombre,
-      descripcion,
-      precio: Number(precio),
-      categoriaId,
-      activo,
-      imagen: imagen || undefined
-    };
+    // Usar FormData para enviar archivos
+    const formData = new FormData();
+    formData.append("nombre", nombre);
+    formData.append("descripcion", descripcion);
+    formData.append("precio", precio);
+    formData.append("categoriaId", categoriaId.toString());
+    formData.append("activo", activo.toString());
+    if (imagen) {
+      formData.append("imagen", imagen);
+    }
 
-    onSubmit(data);
+    onSubmit(formData);
 
     // Limpiar formulario
     setNombre("");
@@ -87,60 +83,89 @@ export default function MenuItemForm({ onSubmit }: MenuItemFormProps) {
     setCategoriaId(null);
     setActivo(true);
     setImagen(null);
+    setImagenPreview(null);
+  };
+
+  // Manejar previsualización de imagen
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      setImagen(file);
+      setImagenPreview(URL.createObjectURL(file));
+    }
   };
 
   return (
-    <Paper sx={{ p: 3, mb: 3 }}>
-      <Typography variant="h5" fontWeight="bold" textAlign="center" color="primary" gutterBottom>
-        Gestión de Menú Items
+    <Paper
+      sx={{
+        p: 4,
+        mb: 3,
+        borderRadius: 6,
+        boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.1)",
+        background: "rgba(255, 255, 255, 0.8)",
+        backdropFilter: "blur(10px)",
+        border: "1px solid rgba(255, 255, 255, 0.3)",
+      }}
+    >
+      <Typography
+        variant="h4"
+        fontWeight="bold"
+        textAlign="center"
+        color="primary"
+        sx={{ mb: 3, fontFamily: "Poppins, sans-serif" }}
+      >
+        🍷 Agregar un Nuevo Ítem al Menú
       </Typography>
 
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-      >
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
         <TextField
-          label="Nombre *"
+          label="🍛 Nombre del Platillo *"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
+          fullWidth
           required
+          sx={{
+            bgcolor: "#fff",
+            borderRadius: 2,
+            "& .MuiOutlinedInput-root": { boxShadow: "0px 2px 8px rgba(0,0,0,0.1)" },
+          }}
         />
 
         <TextField
-          label="Descripción *"
+          label="📖 Descripción *"
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
           required
           multiline
-          rows={2}
+          rows={3}
+          fullWidth
+          sx={{
+            bgcolor: "#fff",
+            borderRadius: 2,
+            "& .MuiOutlinedInput-root": { boxShadow: "0px 2px 8px rgba(0,0,0,0.1)" },
+          }}
         />
 
         <TextField
-          label="Precio *"
+          label="💲 Precio *"
           type="number"
           value={precio}
           onChange={(e) => setPrecio(e.target.value)}
           required
+          fullWidth
+          sx={{
+            bgcolor: "#fff",
+            borderRadius: 2,
+            "& .MuiOutlinedInput-root": { boxShadow: "0px 2px 8px rgba(0,0,0,0.1)" },
+          }}
         />
 
-        <FormControl fullWidth>
-          <InputLabel id="categoria-label">Categoría</InputLabel>
-          <Select
-            labelId="categoria-label"
-            label="Categoría"
-            value={categoriaId === null ? "" : categoriaId}
-            onChange={(e) => {
-              const val = e.target.value;
-              setCategoriaId(val === "" ? null : Number(val));
-            }}
-          >
-            {/* Menú disabled como placeholder */}
-            <MenuItem value="" disabled style={{ color: "#999" }}>
+        <FormControl fullWidth sx={{ bgcolor: "#fff", borderRadius: 2 }}>
+          <InputLabel>🍽️ Categoría</InputLabel>
+          <Select value={categoriaId ?? ""} onChange={(e) => setCategoriaId(Number(e.target.value))}>
+            <MenuItem value="" disabled>
               Seleccione una categoría
             </MenuItem>
-
-            {/* Opciones reales */}
             {categorias.map((cat) => (
               <MenuItem key={cat.id} value={cat.id}>
                 {cat.nombre}
@@ -151,17 +176,44 @@ export default function MenuItemForm({ onSubmit }: MenuItemFormProps) {
 
         <FormControlLabel
           control={<Switch checked={activo} onChange={() => setActivo(!activo)} />}
-          label="Activo"
+          label="🌟 Disponible en Menú"
+          sx={{ mt: 1 }}
         />
 
-        <Typography variant="body2">Seleccionar imagen</Typography>
-        <input
-          type="file"
-          onChange={(e) => setImagen(e.target.files ? e.target.files[0] : null)}
-        />
+        {/* Imagen con Previsualización */}
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 2 }}>
+          {imagenPreview && (
+            <Avatar src={imagenPreview} sx={{ width: 120, height: 120, borderRadius: 4, boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)" }} />
+          )}
+          <Button
+            variant="contained"
+            component="label"
+            sx={{
+              bgcolor: "#FF7043",
+              color: "#fff",
+              fontWeight: "bold",
+              "&:hover": { bgcolor: "#E64A19" },
+            }}
+          >
+            📸 Seleccionar Imagen
+            <input type="file" hidden onChange={handleImageChange} />
+          </Button>
+        </Box>
 
-        <Button variant="contained" type="submit">
-          Registrar Menú Item
+        <Button
+          variant="contained"
+          type="submit"
+          sx={{
+            fontWeight: "bold",
+            bgcolor: "#43A047",
+            color: "white",
+            fontSize: "1.1rem",
+            borderRadius: 4,
+            py: 1.5,
+            "&:hover": { bgcolor: "#2E7D32" },
+          }}
+        >
+          ✅ Registrar Platillo
         </Button>
       </Box>
     </Paper>

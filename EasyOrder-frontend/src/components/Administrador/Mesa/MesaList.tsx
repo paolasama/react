@@ -1,5 +1,4 @@
-// src/components/Administrador/Mesa/MesaList.tsx
-import { Paper, Table, TableHead, TableBody, TableRow, TableCell, Button, Switch } from "@mui/material";
+import { Paper, Table, TableHead, TableBody, TableRow, TableCell, Switch, Button } from "@mui/material";
 
 interface Mesa {
   id: number;
@@ -19,22 +18,29 @@ interface MesaListProps {
 
 export default function MesaList({ mesas, onToggle, onEdit }: MesaListProps) {
   return (
-    <Paper sx={{ p: 2, mt: 2 }}>
-      <Table>
+    <Paper
+      sx={{
+        p: 3,
+        borderRadius: 4,
+        boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.1)",
+        overflowX: "auto",
+      }}
+    >
+      <Table sx={{ minWidth: 650 }}>
         <TableHead>
-          <TableRow>
-            <TableCell>Número</TableCell>
-            <TableCell>Capacidad</TableCell>
-            <TableCell>Estado</TableCell>
-            <TableCell>Activo</TableCell>
-            <TableCell>Restaurante</TableCell>
-            <TableCell>Sucursal</TableCell>
-            <TableCell>Acciones</TableCell>
+          <TableRow sx={{ bgcolor: "#D4AF37" }}>
+            <TableCell sx={{ fontWeight: "bold", color: "#333" }}>Número</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "#333" }}>Capacidad</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "#333" }}>Estado</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "#333" }}>Activo</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "#333" }}>Restaurante</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "#333" }}>Sucursal</TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "#333" }}>Acciones</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {mesas.map((mesa) => (
-            <TableRow key={mesa.id}>
+            <TableRow key={mesa.id} sx={{ "&:hover": { bgcolor: "#fafafa" } }}>
               <TableCell>{mesa.numero_mesa}</TableCell>
               <TableCell>{mesa.capacidad}</TableCell>
               <TableCell>{mesa.estado}</TableCell>
@@ -42,13 +48,23 @@ export default function MesaList({ mesas, onToggle, onEdit }: MesaListProps) {
                 <Switch
                   checked={mesa.activo}
                   onChange={() => onToggle(mesa.id)}
+                  color="primary"
                 />
               </TableCell>
               <TableCell>{mesa.restaurante?.nombre ?? "N/A"}</TableCell>
               <TableCell>{mesa.sucursal?.nombre ?? "N/A"}</TableCell>
               <TableCell>
-                <Button variant="contained" onClick={() => onEdit(mesa.id)}>
-                  Editar
+                <Button
+                  variant="contained"
+                  sx={{
+                    bgcolor: "#007bff",
+                    color: "white",
+                    fontWeight: "bold",
+                    "&:hover": { bgcolor: "#0056b3" },
+                  }}
+                  onClick={() => onEdit(mesa.id)}
+                >
+                  EDITAR
                 </Button>
               </TableCell>
             </TableRow>
