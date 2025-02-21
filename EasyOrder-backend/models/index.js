@@ -4,6 +4,7 @@ const Restaurante = require("./Restaurante"); // Asegúrate de tener este modelo
 const Sucursal = require("./Sucursal");
 const Mesa = require("./Mesa");
 
+
 // Asociaciones: si usas Restaurante y Sucursal
 if (!Restaurante.associations.sucursales) {
   Restaurante.hasMany(Sucursal, {
@@ -37,6 +38,7 @@ async function syncModels() {
     throw error;
   }
 }
+
 
 module.exports = {
   Restaurante,

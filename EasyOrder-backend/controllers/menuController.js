@@ -2,7 +2,7 @@
 const Menu = require("../models/Menu");
 const Sucursal = require("../models/Sucursal");
 
-// Obtener todos los menús
+// GET /api/menus
 exports.getMenus = async (req, res) => {
   try {
     const menus = await Menu.findAll({
@@ -10,7 +10,7 @@ exports.getMenus = async (req, res) => {
         {
           model: Sucursal,
           as: "sucursal",
-          attributes: ["id", "nombre"], // si quieres más campos, agrégalos
+          attributes: ["id", "nombre"],
         },
       ],
     });
@@ -21,12 +21,36 @@ exports.getMenus = async (req, res) => {
   }
 };
 
-// Crear un menú
+// GET /api/menus/:id
+exports.getMenuById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const menu = await Menu.findByPk(id, {
+      include: [
+        {
+          model: Sucursal,
+          as: "sucursal",
+          attributes: ["id", "nombre"],
+        },
+      ],
+    });
+
+    if (!menu) {
+      return res.status(404).json({ error: "Menú no encontrado" });
+    }
+
+    res.json(menu);
+  } catch (error) {
+    console.error("Error al obtener menú:", error);
+    res.status(500).json({ error: "Error al obtener menú" });
+  }
+};
+
+
+// POST /api/menus
 exports.createMenu = async (req, res) => {
   try {
     const { nombre, activo, restaurante_id, sucursal_id } = req.body;
-
-    // Validaciones mínimas
     if (!nombre || !restaurante_id) {
       return res.status(400).json({ error: "Faltan campos requeridos" });
     }
@@ -44,7 +68,7 @@ exports.createMenu = async (req, res) => {
   }
 };
 
-// Actualizar un menú
+// PUT /api/menus/:id
 exports.updateMenu = async (req, res) => {
   try {
     const { id } = req.params;
@@ -69,7 +93,7 @@ exports.updateMenu = async (req, res) => {
   }
 };
 
-// Eliminar un menú
+// DELETE /api/menus/:id
 exports.deleteMenu = async (req, res) => {
   try {
     const { id } = req.params;

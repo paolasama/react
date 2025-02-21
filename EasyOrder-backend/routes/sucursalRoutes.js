@@ -4,6 +4,7 @@ const sucursalController = require("../controllers/sucursalController");
 
 // Definir rutas
 router.get("/", sucursalController.getAllSucursales);
+router.get("/:id", sucursalController.getSucursalById);
 router.post("/", sucursalController.createSucursal);
 router.put("/:id", sucursalController.updateSucursal);
 router.delete("/:id", sucursalController.deleteSucursal);

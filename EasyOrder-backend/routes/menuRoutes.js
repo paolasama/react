@@ -6,6 +6,9 @@ const menuController = require("../controllers/menuController");
 // GET /api/menus
 router.get("/", menuController.getMenus);
 
+// GET /api/menus/:id
+router.get("/:id", menuController.getMenuById);
+
 // POST /api/menus
 router.post("/", menuController.createMenu);
 

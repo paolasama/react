@@ -49,7 +49,7 @@ export default function SucursalForm({ restaurantes, onCreate }: SucursalFormPro
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
           required
-          InputProps={{ sx: { color: "white" } }}
+          InputProps={{ sx: { color: "black" } }}
         />
 
         <TextField
@@ -57,12 +57,12 @@ export default function SucursalForm({ restaurantes, onCreate }: SucursalFormPro
           value={direccion}
           onChange={(e) => setDireccion(e.target.value)}
           required
-          InputProps={{ sx: { color: "white" } }}
+          InputProps={{ sx: { color: "black" } }}
         />
 
         <FormControl fullWidth>
           <InputLabel sx={{ color: "secondary.main" }}>Seleccione un restaurante</InputLabel>
-          <Select value={restauranteId} onChange={(e) => setRestauranteId(e.target.value as number)} required sx={{ color: "white" }}>
+          <Select value={restauranteId} onChange={(e) => setRestauranteId(e.target.value as number)} required sx={{ color: "black" }}>
             <MenuItem value="">
               <em>-- Seleccionar --</em>
             </MenuItem>

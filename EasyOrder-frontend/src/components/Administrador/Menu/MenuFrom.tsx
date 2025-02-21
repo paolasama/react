@@ -61,7 +61,7 @@ export default function MenuForm({ onCreate, sucursales }: MenuFormProps) {
         borderRadius: 3,
         boxShadow: "0px 3px 10px rgba(0, 0, 0, 0.1)",
         background: "#fff",
-        maxWidth: "50px", // Ancho más pequeño
+        maxWidth: "500px", // Ancho más pequeño
         mx: "auto", // Centrar
       }}
     >

@@ -1,18 +1,30 @@
-// routes/menuItemRoutes.js
-const express = require("express");
-const router = express.Router();
-const menuItemController = require("../controllers/menuItemController");
+// routes/menuItems.routes.js
+const { Router } = require("express");
+const multer = require("multer");
+const {
+  obtenerMenuItems,
+  crearMenuItem,
+  toggleEstadoMenuItem,
+  eliminarMenuItem,
+  obtenerMenuItemPorId,
+} = require("../controllers/menuItemController");
 
-// GET todos los items
-router.get("/", menuItemController.getMenuItems);
+const router = Router();
+const upload = multer({ dest: "uploads/" }); // Ajusta si quieres otra carpeta
 
-// POST crear item
-router.post("/", menuItemController.createMenuItem);
+// GET: todos
+router.get("/", obtenerMenuItems);
 
-// PUT actualizar item
-router.put("/:id", menuItemController.updateMenuItem);
+// GET: uno por id
+router.get("/:id", obtenerMenuItemPorId);
 
-// DELETE eliminar item
-router.delete("/:id", menuItemController.deleteMenuItem);
+// POST: con imagen
+router.post("/", upload.single("imagen"), crearMenuItem);
+
+// PUT: togglear
+router.put("/:id/toggle", toggleEstadoMenuItem);
+
+// DELETE
+router.delete("/:id", eliminarMenuItem);
 
 module.exports = router;

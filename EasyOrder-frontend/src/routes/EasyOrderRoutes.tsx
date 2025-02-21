@@ -5,11 +5,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import RestaurantesScreen from '../screens/Administador/Restaurante/RestaurantesScreen';
 import SucursalScreen from '../screens/Administador/Sucursal/SucursalScreen';
 import MesaScreen from '../screens/Administador/Mesa/MesaScreen';
+import MenuScreen from '../screens/Administador/Menu/MenuScreen';
+import MenuItemsScreen from '../screens/Administador/MenuItem/MenuItemScreen';
 
 // 📌 Pantallas de Cliente
-import MenuScreen from '../screens/Cliente/Menu/MenuScreen';
 import MiOrdenScreen from '../screens/Cliente/OrdenarPedido';
-import MenuItemsScreen from '../screens/Administador/MenuItem/MenuItemScreen';
+import MenuClienteScreen from '../screens/Cliente/Menu/MenuClienteScreen';
 
 // 📌 Pantalla de Login
 import LoginForm from '../screens/Login/InicioSesion';
@@ -27,14 +28,13 @@ const EasyOrderRoutes: FunctionComponent = () => {
                 <Route path="/admin/restaurantes" element={<RestaurantesScreen />} />
                 <Route path="/admin/sucursales" element={<SucursalScreen />} />
                 <Route path="/admin/mesas" element={<MesaScreen />} />
-
+                <Route path="/admin/menu-items" element={<MenuItemsScreen />} />
+                <Route path="/admin/menu" element={<MenuScreen />} />
                 {/* Rutas de cliente */}
-                <Route path="/menu" element={<MenuScreen />} />                
                 <Route path="/mi-orden" element={<MiOrdenScreen />} />
+                <Route path="/menu" element={<MenuClienteScreen />} />
                 {/* Ruta para iniciar sesión */}
                 <Route path="/login" element={<LoginForm />} />
-                <Route path="/admin/menu-items" element={<MenuItemsScreen />} />
-
                 {/* Ruta de error para cualquier ruta no encontrada */}
                 <Route path="*" element={<NotFoundScreen />} />
             </Routes>

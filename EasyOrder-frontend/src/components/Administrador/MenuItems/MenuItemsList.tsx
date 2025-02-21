@@ -30,10 +30,15 @@ interface MenuItemListProps {
   items: MenuItem[];
   loading: boolean;
   error: boolean;
-  onToggle: (id: number) => void;
+  onToggle: (id: number) => void; // Función para togglear
 }
 
-export default function MenuItemList({ items, loading, error, onToggle }: MenuItemListProps) {
+export default function MenuItemList({
+  items,
+  loading,
+  error,
+  onToggle,
+}: MenuItemListProps) {
   return (
     <Paper
       sx={{
@@ -69,7 +74,12 @@ export default function MenuItemList({ items, loading, error, onToggle }: MenuIt
 
       {/* Muestra mensaje si no hay ítems */}
       {!loading && !error && items.length === 0 && (
-        <Typography variant="body1" textAlign="center" fontStyle="italic" sx={{ color: "#666" }}>
+        <Typography
+          variant="body1"
+          textAlign="center"
+          fontStyle="italic"
+          sx={{ color: "#666" }}
+        >
           No hay ítems disponibles.
         </Typography>
       )}
@@ -79,11 +89,21 @@ export default function MenuItemList({ items, loading, error, onToggle }: MenuIt
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow sx={{ bgcolor: "#f5f5f5" }}>
-              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>🍽️ Nombre</TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>📖 Descripción</TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>💰 Precio</TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>📂 Categoría</TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>✅ Activo</TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>
+                🍽️ Nombre
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>
+                📖 Descripción
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>
+                💰 Precio
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>
+                📂 Categoría
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>
+                ✅ Activo
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -95,16 +115,22 @@ export default function MenuItemList({ items, loading, error, onToggle }: MenuIt
                   transition: "background 0.3s ease",
                 }}
               >
-                <TableCell sx={{ fontWeight: "500" }}>{item.nombre}</TableCell>
-                <TableCell sx={{ fontStyle: "italic", color: "#666" }}>{item.descripcion}</TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#2E7D32" }}>${item.precio.toFixed(2)}</TableCell>
+                <TableCell sx={{ fontWeight: "500" }}>
+                  {item.nombre}
+                </TableCell>
+                <TableCell sx={{ fontStyle: "italic", color: "#666" }}>
+                  {item.descripcion}
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold", color: "#2E7D32" }}>
+                  ${item.precio.toFixed(2)}
+                </TableCell>
                 <TableCell sx={{ fontWeight: "500", color: "#555" }}>
                   {item.categoria ? item.categoria.nombre : "Sin categoría"}
                 </TableCell>
                 <TableCell>
                   <Switch
                     checked={item.activo}
-                    onChange={() => onToggle(item.id)}
+                    onChange={() => onToggle(item.id)} // <-- Llamamos a onToggle
                     sx={{
                       "& .MuiSwitch-switchBase.Mui-checked": {
                         color: "#43A047",
