@@ -1,4 +1,7 @@
 // controllers/menuItems.controller.js
+const fs = require("fs");
+const path = require("path");
+const sharp = require("sharp");
 const MenuItem = require("../models/MenuItem");
 const Categoria = require("../models/Categoria");
 
@@ -10,7 +13,7 @@ const obtenerMenuItems = async (req, res) => {
     });
     res.json(items);
   } catch (error) {
-    console.error("Error al obtener items:", error);
+    console.error("Error al obtener ítems:", error);
     res.status(500).json({ error: "Error al obtener ítems" });
   }
 };
@@ -24,10 +27,8 @@ const obtenerMenuItemPorId = async (req, res) => {
     });
 
     if (!item) {
-      // Retornamos un JSON de error
       return res.status(404).json({ error: "MenuItem no encontrado" });
     }
-
     res.json(item);
   } catch (error) {
     console.error("Error al obtener ítem:", error);
@@ -39,8 +40,33 @@ const obtenerMenuItemPorId = async (req, res) => {
 const crearMenuItem = async (req, res) => {
   try {
     const { nombre, descripcion, precio, categoriaId, activo } = req.body;
-    const file = req.file;
-    const imagen = file ? file.filename : null;
+    let imagen = null;
+    const file = req.file; // Multer asigna el archivo a req.file
+
+    if (file) {
+      // Obtiene la extensión en minúsculas
+      const ext = path.extname(file.originalname).toLowerCase();
+      if (ext === ".webp") {
+        // Convierte de WebP a PNG usando Sharp
+        const newFilename = path.basename(file.originalname, ext) + ".png";
+        const newFilePath = path.join(path.dirname(file.path), newFilename);
+        await sharp(file.path)
+          .png()
+          .toFile(newFilePath);
+        
+        // Elimina el archivo original tras un pequeño retraso
+        setTimeout(() => {
+          try {
+            fs.unlinkSync(file.path);
+          } catch (err) {
+            console.error("Error al eliminar el archivo original:", err);
+          }
+        }, 100);
+        imagen = newFilename;
+      } else {
+        imagen = file.filename;
+      }
+    }
 
     const nuevoItem = await MenuItem.create({
       nombre,
@@ -68,6 +94,7 @@ const toggleEstadoMenuItem = async (req, res) => {
       return res.status(404).json({ error: "MenuItem no encontrado" });
     }
 
+    // Alterna el estado de 'activo'
     item.activo = !item.activo;
     await item.save();
 
@@ -88,6 +115,14 @@ const eliminarMenuItem = async (req, res) => {
       return res.status(404).json({ error: "MenuItem no encontrado" });
     }
 
+    // Si el ítem tiene imagen, elimina el archivo del sistema
+    if (item.imagen) {
+      const imagePath = path.join(__dirname, "../uploads", item.imagen);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+
     await item.destroy();
     res.json({ message: "Ítem eliminado correctamente" });
   } catch (error) {
@@ -96,7 +131,6 @@ const eliminarMenuItem = async (req, res) => {
   }
 };
 
-// Exportar todas las funciones
 module.exports = {
   obtenerMenuItems,
   obtenerMenuItemPorId,

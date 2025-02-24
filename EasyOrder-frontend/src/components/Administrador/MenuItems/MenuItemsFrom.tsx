@@ -63,7 +63,7 @@ export default function MenuItemForm({ onSubmit }: MenuItemFormProps) {
       return;
     }
 
-    // Usar FormData para enviar archivos
+    // Usar FormData para enviar archivos y demás datos
     const formData = new FormData();
     formData.append("nombre", nombre);
     formData.append("descripcion", descripcion);
@@ -76,7 +76,7 @@ export default function MenuItemForm({ onSubmit }: MenuItemFormProps) {
 
     onSubmit(formData);
 
-    // Limpiar formulario
+    // Limpiar formulario después de enviar
     setNombre("");
     setDescripcion("");
     setPrecio("");
@@ -180,7 +180,7 @@ export default function MenuItemForm({ onSubmit }: MenuItemFormProps) {
           sx={{ mt: 1 }}
         />
 
-        {/* Imagen con Previsualización */}
+        {/* Sección para seleccionar imagen y previsualizarla */}
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mt: 2 }}>
           {imagenPreview && (
             <Avatar src={imagenPreview} sx={{ width: 120, height: 120, borderRadius: 4, boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)" }} />

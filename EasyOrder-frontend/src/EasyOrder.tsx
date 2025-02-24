@@ -1,14 +1,14 @@
-import { FunctionComponent } from 'react'; // Importamos FunctionComponent de React para tipar el componente
-import EasyOrderRoutes from './routes/EasyOrderRoutes'; // Rutas de la aplicación
-import { OrderProvider } from './context/OrderContext'; // Contexto para gestionar el estado global de las órdenes
+import { FunctionComponent } from 'react';
+import EasyOrderRoutes from './routes/EasyOrderRoutes';
+// Importamos la exportación por defecto
+import OrderProvider from './context/OrderContext';
 
 const EasyOrderApp: FunctionComponent = () => {
     return (
-        // Proveedor del contexto OrderProvider, que envuelve las rutas de la aplicación
         <OrderProvider>
-            <EasyOrderRoutes /> {/* Rutas gestionadas en el componente EasyOrderRoutes */}
+            <EasyOrderRoutes />
         </OrderProvider>
     );
 };
 
-export default EasyOrderApp; // Exportamos el componente para su uso en otros archivos
+export default EasyOrderApp;

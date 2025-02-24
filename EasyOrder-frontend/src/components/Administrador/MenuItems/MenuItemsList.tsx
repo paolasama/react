@@ -23,6 +23,7 @@ interface MenuItem {
     nombre: string;
   };
   activo: boolean;
+  imagen?: string; // <-- Agregamos la propiedad imagen
 }
 
 /** Props del componente */
@@ -89,21 +90,12 @@ export default function MenuItemList({
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow sx={{ bgcolor: "#f5f5f5" }}>
-              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>
-                🍽️ Nombre
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>
-                📖 Descripción
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>
-                💰 Precio
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>
-                📂 Categoría
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>
-                ✅ Activo
-              </TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>🍽️ Nombre</TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>📖 Descripción</TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>💰 Precio</TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>📂 Categoría</TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>📷 Imagen</TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "#444" }}>✅ Activo</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -115,22 +107,32 @@ export default function MenuItemList({
                   transition: "background 0.3s ease",
                 }}
               >
-                <TableCell sx={{ fontWeight: "500" }}>
-                  {item.nombre}
-                </TableCell>
-                <TableCell sx={{ fontStyle: "italic", color: "#666" }}>
-                  {item.descripcion}
-                </TableCell>
+                <TableCell sx={{ fontWeight: "500" }}>{item.nombre}</TableCell>
+                <TableCell sx={{ fontStyle: "italic", color: "#666" }}>{item.descripcion}</TableCell>
                 <TableCell sx={{ fontWeight: "bold", color: "#2E7D32" }}>
                   ${item.precio.toFixed(2)}
                 </TableCell>
                 <TableCell sx={{ fontWeight: "500", color: "#555" }}>
                   {item.categoria ? item.categoria.nombre : "Sin categoría"}
                 </TableCell>
+
+                {/* Columna para la imagen */}
+                <TableCell>
+                  {item.imagen ? (
+                    <img
+                      src={`http://localhost:3000/uploads/${item.imagen}`}
+                      alt={item.nombre}
+                      style={{ width: 80, height: "auto", borderRadius: 4 }}
+                    />
+                  ) : (
+                    "Sin imagen"
+                  )}
+                </TableCell>
+
                 <TableCell>
                   <Switch
                     checked={item.activo}
-                    onChange={() => onToggle(item.id)} // <-- Llamamos a onToggle
+                    onChange={() => onToggle(item.id)}
                     sx={{
                       "& .MuiSwitch-switchBase.Mui-checked": {
                         color: "#43A047",

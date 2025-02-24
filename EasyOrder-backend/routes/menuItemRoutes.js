@@ -1,6 +1,5 @@
-// routes/menuItems.routes.js
 const { Router } = require("express");
-const multer = require("multer");
+const upload = require("../uploads/uploadConfig");
 const {
   obtenerMenuItems,
   crearMenuItem,
@@ -10,21 +9,21 @@ const {
 } = require("../controllers/menuItemController");
 
 const router = Router();
-const upload = multer({ dest: "uploads/" }); // Ajusta si quieres otra carpeta
 
-// GET: todos
+// GET: obtener todos los ítems
 router.get("/", obtenerMenuItems);
 
-// GET: uno por id
+// GET: obtener un ítem por id
 router.get("/:id", obtenerMenuItemPorId);
 
-// POST: con imagen
+// POST: crear un ítem con imagen
+// Multer buscará el archivo en el campo "imagen"
 router.post("/", upload.single("imagen"), crearMenuItem);
 
-// PUT: togglear
+// PUT: togglear estado
 router.put("/:id/toggle", toggleEstadoMenuItem);
 
-// DELETE
+// DELETE: eliminar un ítem
 router.delete("/:id", eliminarMenuItem);
 
 module.exports = router;

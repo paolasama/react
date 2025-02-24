@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Typography, Button, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,10 +18,9 @@ const NotFoundScreen = () => {
                 padding: { xs: 3, sm: 4 },
             }}
         >
-            {/* Imagen con diseño gastronómico */}
             <Box
                 component="img"
-                src="/404.jpg" // Reemplázalo con una imagen representativa
+                src="/404.jpg"
                 alt="Plato vacío - Página no encontrada"
                 sx={{
                     width: { xs: 200, sm: 300, md: 350 },
@@ -33,7 +31,6 @@ const NotFoundScreen = () => {
                 }}
             />
 
-            {/* Mensaje amigable y temático */}
             <Typography 
                 variant="h4" 
                 sx={{ 
@@ -57,7 +54,6 @@ const NotFoundScreen = () => {
                 ¿Por qué no vuelves al menú principal y eliges algo delicioso?
             </Typography>
 
-            {/* Botón estilizado con efectos visuales */}
             <Button
                 variant="contained"
                 color="secondary"
