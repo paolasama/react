@@ -18,7 +18,7 @@
    const sesionRoutes = require('./routes/sesionRoutes');
    const authMiddleware = require('./middlewares/authMiddleware');
    const errorHandler = require('./middlewares/errorHandler');
-
+   const carritoRoutes = require('./routes/carritoRoutes');
    const app = express();
 
    app.set('etag', false);
@@ -43,6 +43,7 @@
    app.use('/api/menu-items', menuItemRoutes);
    app.use('/api/categorias', categoriaRoutes);
    app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+   app.use('/api/carrito', carritoRoutes);
 
    app.use('/api/pedidos', authMiddleware, pedidoRoutes);
    app.use('/api/pagos', authMiddleware, pagoRoutes);

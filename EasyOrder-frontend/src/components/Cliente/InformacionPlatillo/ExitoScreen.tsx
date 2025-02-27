@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 interface MenuItem {
   id: number;
@@ -11,217 +11,216 @@ interface MenuItem {
   activo: boolean;
 }
 
+interface OrdenItem {
+  itemId: number;
+  nombre: string;
+  cantidad: number;
+  instrucciones: string;
+  precio: number;
+  imagen?: string; // Agregamos la propiedad imagen
+}
+
 export default function ExitoScreen() {
   const navigate = useNavigate();
-
-  // Estado para ítems recomendados
   const [recommended, setRecommended] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [mensaje, setMensaje] = useState("");
 
-  // Carga de recomendaciones (solo 3, p.ej. con "?recomendado=true")
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/api/menu-items?recomendado=true")
-      .then((res) => {
-        setRecommended(res.data.slice(0, 3)); // Muestra solo los primeros 3
+    const fetchRecommendations = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/menu-items");
+        const menuItems: MenuItem[] = res.data;
+
+        // Filtrar solo productos activos y seleccionar 4 aleatorios
+        const productosActivos = menuItems.filter((item) => item.activo);
+        const recomendaciones = productosActivos.sort(() => 0.5 - Math.random()).slice(0, 4);
+
+        setRecommended(recomendaciones);
+      } catch (error) {
+        console.error("Error al obtener recomendaciones:", error);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => {
-        setError(true);
-        setLoading(false);
-      });
+      }
+    };
+
+    fetchRecommendations();
   }, []);
 
-  const handleVolverMenu = () => {
-    navigate("/menu");
-  };
+  const handleAgregarRecomendado = (rec: MenuItem) => {
+    const nuevaOrden: OrdenItem = {
+      itemId: rec.id,
+      nombre: rec.nombre,
+      cantidad: 1,
+      instrucciones: "",
+      precio: rec.precio,
+      imagen: rec.imagen, // Se incluye la imagen
+    };
 
-  // Ahora, en lugar de navegar a "/mi-orden", navegamos a "/carrito"
-  const handleRevisarOrden = () => {
-    navigate("/carrito");
-  };
+    const carritoActual = localStorage.getItem("carrito");
+    const carritoParseado: OrdenItem[] = carritoActual ? JSON.parse(carritoActual) : [];
 
-  // Función para "Agregar" un ítem recomendado (ejemplo)
-  const handleAgregarRecomendado = (id: number) => {
-    alert(`Ítem ${id} agregado a la orden (ejemplo).`);
+    const indexExistente = carritoParseado.findIndex((item) => item.itemId === rec.id);
+    if (indexExistente !== -1) {
+      carritoParseado[indexExistente].cantidad += 1;
+    } else {
+      carritoParseado.push(nuevaOrden);
+    }
+
+    localStorage.setItem("carrito", JSON.stringify(carritoParseado));
+
+    setMensaje(`Se agregó 1x ${rec.nombre} al pedido por $${rec.precio.toFixed(2)}.`);
+
+    setTimeout(() => setMensaje(""), 3000);
   };
 
   return (
-    <div style={styles.phoneContainer}>
-      {/* Barra superior */}
-      <div style={styles.topBar}>
-        <span style={styles.backButton} onClick={() => navigate(-1)}>
-          ← Atrás
-        </span>
+    <div style={styles.container}>
+      <div style={styles.header}>
+        <span onClick={() => navigate(-1)} style={styles.backButton}>&lt; Atrás</span>
       </div>
 
-      <div style={styles.content}>
-        <h1 style={styles.successTitle}>
-          Producto <span style={styles.highlight}>añadido</span> con éxito!
-        </h1>
+      <h1>Producto <span style={styles.highlight}>añadido</span> con éxito!</h1>
+      <p style={styles.subtitle}>Recomendaciones para ti</p>
 
-        <p style={styles.subtext}>Recomendaciones para ti</p>
+      {loading && <p style={styles.loadingText}>Cargando recomendaciones...</p>}
 
-        {loading && <p style={styles.infoText}>Cargando recomendaciones...</p>}
-        {error && <p style={styles.infoText}>Error al cargar recomendaciones.</p>}
+      <div style={styles.grid}>
+        {!loading &&
+          recommended.map((rec) => (
+            <div key={rec.id} style={styles.card}>
+              <img
+                src={`http://localhost:3000/uploads/${rec.imagen}`}
+                alt={rec.nombre}
+                style={styles.image}
+                onError={(e) =>
+                  (e.currentTarget.src = "http://localhost:3000/uploads/default.png")
+                }
+              />
+              <p style={styles.name}>{rec.nombre}</p>
+              <p style={styles.description}>{rec.descripcion}</p>
+              <p style={styles.price}>${rec.precio.toFixed(2)}</p>
+              <button onClick={() => handleAgregarRecomendado(rec)} style={styles.addButton}>
+                Agregar
+              </button>
+            </div>
+          ))}
+      </div>
 
-        {/* Grid de tarjetas, máximo 3 */}
-        <div style={styles.recoGrid}>
-          {!loading &&
-            !error &&
-            recommended.map((rec) => (
-              <div key={rec.id} style={styles.card}>
-                <img
-                  src={`http://localhost:3000/uploads/${rec.imagen}`}
-                  alt={rec.nombre}
-                  style={styles.cardImage}
-                />
-                <p style={styles.cardTitle}>{rec.nombre}</p>
-                <p style={styles.cardDesc}>{rec.descripcion}</p>
-                <button
-                  style={styles.cardButton}
-                  onClick={() => handleAgregarRecomendado(rec.id)}
-                >
-                  Agregar
-                </button>
-              </div>
-            ))}
-        </div>
+      {mensaje && <p style={styles.mensaje}>{mensaje}</p>}
 
-        <div style={styles.buttonsContainer}>
-          <button style={styles.menuButton} onClick={handleVolverMenu}>
-            Volver al menú
-          </button>
-          <button style={styles.orderButton} onClick={handleRevisarOrden}>
-            Revisar orden
-          </button>
-        </div>
+      <div style={styles.buttonsContainer}>
+        <button onClick={() => navigate("/menu")} style={styles.menuButton}>Volver al menú</button>
+        <button onClick={() => navigate("/carrito")} style={styles.orderButton}>Revisar orden</button>
       </div>
     </div>
   );
 }
 
 const styles: { [key: string]: React.CSSProperties } = {
-  phoneContainer: {
-    width: "375px",
-    height: "812px",
+  container: {
+    width: "100%",
+    maxWidth: "400px",
     margin: "0 auto",
-    border: "1px solid #ccc",
-    borderRadius: "25px",
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
-    background: "#fff",
     fontFamily: "Poppins, sans-serif",
-    position: "relative",
+    textAlign: "center",
+    padding: "20px",
   },
-  topBar: {
-    height: "60px",
-    background: "#fff",
-    borderBottom: "1px solid #ddd",
+  header: {
     display: "flex",
     alignItems: "center",
-    padding: "0 1rem",
+    paddingBottom: "10px",
   },
   backButton: {
-    fontSize: "1rem",
+    fontSize: "16px",
+    fontWeight: "bold",
     cursor: "pointer",
     color: "#333",
-  },
-  content: {
-    padding: "1rem",
-    display: "flex",
-    flexDirection: "column",
-    gap: "1rem",
-    overflowY: "auto",
-  },
-  successTitle: {
-    fontSize: "1.3rem",
-    fontWeight: "bold",
-    color: "#333",
+    textDecoration: "none",
   },
   highlight: {
     color: "#e53935",
   },
-  subtext: {
-    fontSize: "1rem",
+  subtitle: {
+    fontSize: "18px",
+    fontWeight: "bold",
+    marginTop: "10px",
+  },
+  loadingText: {
     color: "#777",
-    margin: 0,
   },
-  infoText: {
-    fontSize: "0.9rem",
-    color: "#555",
-  },
-  recoGrid: {
+  grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: "1rem",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: "10px",
+    marginTop: "10px",
   },
   card: {
+    padding: "10px",
     border: "1px solid #ddd",
     borderRadius: "8px",
-    padding: "0.5rem",
     textAlign: "center",
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.3rem",
     backgroundColor: "#fff",
   },
-  cardImage: {
+  image: {
     width: "100%",
     height: "80px",
     objectFit: "cover",
-    borderRadius: "4px",
+    borderRadius: "5px",
   },
-  cardTitle: {
-    fontSize: "0.9rem",
+  name: {
     fontWeight: "bold",
-    margin: 0,
-    color: "#333",
+    fontSize: "0.9rem",
+    marginTop: "5px",
   },
-  cardDesc: {
+  description: {
     fontSize: "0.8rem",
-    margin: 0,
     color: "#666",
-    minHeight: "2em",
-    overflow: "hidden",
+    marginBottom: "5px",
   },
-  cardButton: {
-    marginTop: "auto",
+  price: {
+    fontSize: "1rem",
+    fontWeight: "bold",
+    color: "green",
+  },
+  addButton: {
     backgroundColor: "#4caf50",
-    color: "#fff",
+    color: "white",
+    borderRadius: "5px",
+    padding: "5px",
     border: "none",
-    borderRadius: "6px",
-    padding: "0.3rem 0.5rem",
-    fontSize: "0.8rem",
     cursor: "pointer",
+    width: "100%",
+  },
+  mensaje: {
+    color: "green",
+    fontWeight: "bold",
+    marginTop: "10px",
   },
   buttonsContainer: {
     display: "flex",
     flexDirection: "column",
-    gap: "0.5rem",
-    marginTop: "1.5rem",
+    gap: "10px",
+    marginTop: "20px",
   },
   menuButton: {
-    backgroundColor: "#ff5722",
-    color: "#fff",
-    border: "none",
+    backgroundColor: "#2AB7A2",
+    color: "white",
+    padding: "10px",
     borderRadius: "8px",
-    padding: "0.8rem 1rem",
     fontSize: "1rem",
     fontWeight: "bold",
     cursor: "pointer",
+    border: "none",
   },
   orderButton: {
-    backgroundColor: "#2196f3",
-    color: "#fff",
-    border: "none",
+    backgroundColor: "#fff",
+    color: "#2AB7A2",
+    padding: "10px",
     borderRadius: "8px",
-    padding: "0.8rem 1rem",
     fontSize: "1rem",
     fontWeight: "bold",
     cursor: "pointer",
+    border: "2px solid #2AB7A2",
   },
 };
-

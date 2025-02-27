@@ -1,4 +1,3 @@
-// routes/mesasRoutes.js
 const { Router } = require("express");
 const {
   getMesas,
@@ -11,22 +10,22 @@ const {
 
 const router = Router();
 
-// GET /api/mesas
+// Obtiene todas las mesas
 router.get("/", getMesas);
 
-// GET /api/mesas/:id
+// Obtiene una mesa por su ID
 router.get("/:id", getMesaById);
 
-// POST /api/mesas
+// Crea una nueva mesa
 router.post("/", createMesa);
 
-// PUT /api/mesas/:id
+// Actualiza los datos de una mesa existente
 router.put("/:id", updateMesa);
 
-// PUT /api/mesas/:id/toggle (opcional para activar/desactivar)
+// Alterna el estado 'activo' de una mesa (opcional)
 router.put("/:id/toggle", toggleMesa);
 
-// DELETE /api/mesas/:id
+// Elimina una mesa
 router.delete("/:id", deleteMesa);
 
 module.exports = router;

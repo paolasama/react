@@ -1,6 +1,6 @@
 // models/Mesa.js
 const { DataTypes } = require("sequelize");
-const { sequelize } = require("../config/db"); // Asegúrate de tu archivo db.js
+const { sequelize } = require("../config/db");
 
 const Mesa = sequelize.define(
   "Mesa",
@@ -20,7 +20,7 @@ const Mesa = sequelize.define(
     },
     estado: {
       type: DataTypes.STRING,
-      defaultValue: "Libre", // o lo que necesites
+      defaultValue: "Libre",
     },
     activo: {
       type: DataTypes.BOOLEAN,
@@ -34,11 +34,18 @@ const Mesa = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    // --------------> Agrega aquí la columna QR
+    qr_code: {
+      type: DataTypes.STRING,  // o TEXT
+      allowNull: true,
+    },
   },
   {
-    tableName: "mesas", // Tu tabla en la BD
-    timestamps: true,   // Si tienes createdAt y updatedAt
-    underscored: true,  // Si quieres que cree columnas con snake_case
+    tableName: "mesas",
+    timestamps: true,
+    underscored: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
   }
 );
 

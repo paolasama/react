@@ -10,6 +10,15 @@ interface MenuItemDetail {
   imagen?: string;
 }
 
+interface OrdenItem {
+  itemId: number;
+  nombre: string;
+  cantidad: number;
+  instrucciones: string;
+  precio: number;
+  imagen?: string; // Agregamos la propiedad imagen
+}
+
 export default function DetalleItemScreen() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -17,97 +26,186 @@ export default function DetalleItemScreen() {
   const [item, setItem] = useState<MenuItemDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-
-  // Ejemplo de toggles / campos locales
-  const [terminoCoccion, setTerminoCoccion] = useState(false);
-  const [esparragos, setEsparragos] = useState(false);
+  const [cantidad, setCantidad] = useState(1);
   const [instrucciones, setInstrucciones] = useState("");
+  const [mensaje, setMensaje] = useState("");
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:3000/api/menu-items/${id}`)
-      .then((res) => {
+    const fetchItem = async () => {
+      try {
+        const res = await axios.get(`http://localhost:3000/api/menu-items/${id}`);
         setItem(res.data);
-        setLoading(false);
-      })
-      .catch(() => {
+      } catch {
         setError(true);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchItem();
   }, [id]);
 
-  if (loading) return <p>Cargando detalle...</p>;
-  if (error || !item) return <p>Error al cargar el ítem</p>;
+  if (loading)
+    return <p style={{ textAlign: "center", color: "gray" }}>Cargando detalle...</p>;
+  if (error || !item)
+    return <p style={{ textAlign: "center", color: "red" }}>Error al cargar el ítem</p>;
 
   const handleAgregarOrden = () => {
-    // Lógica para agregar el ítem a la orden
-    navigate("/exito");
+    const nuevaOrden: OrdenItem = {
+      itemId: item.id,
+      nombre: item.nombre,
+      cantidad,
+      instrucciones,
+      precio: item.precio,
+      imagen: item.imagen, // Se incluye la imagen
+    };
+
+    // Obtener carrito del localStorage
+    const carritoActual = localStorage.getItem("carrito");
+    const carritoParseado: OrdenItem[] = carritoActual ? JSON.parse(carritoActual) : [];
+
+    // Verificar si el producto ya está en el carrito para actualizar cantidad
+    const indexExistente = carritoParseado.findIndex((producto) => producto.itemId === item.id);
+    if (indexExistente !== -1) {
+      carritoParseado[indexExistente].cantidad += cantidad;
+    } else {
+      carritoParseado.push(nuevaOrden);
+    }
+
+    // Guardar carrito actualizado en localStorage
+    localStorage.setItem("carrito", JSON.stringify(carritoParseado));
+
+    setMensaje(`Se agregó ${cantidad}x ${item.nombre} al pedido.`);
+
+    setTimeout(() => {
+      setMensaje("");
+      navigate("/exito"); // Redirige a la página de éxito
+    }, 2000);
   };
 
   return (
-    <div style={{ width: "375px", margin: "0 auto", fontFamily: "Poppins, sans-serif" }}>
-      <div style={{ height: "60px", display: "flex", alignItems: "center", borderBottom: "1px solid #ddd", padding: "0 1rem" }}>
-        <span style={{ cursor: "pointer", marginRight: "auto" }} onClick={() => navigate(-1)}>
-          ← Atrás
-        </span>
-        <h1 style={{ margin: "0 auto", color: "#e53935" }}>Panamá</h1>
+    <div style={{ width: "100%", maxWidth: "500px", margin: "0 auto", fontFamily: "Arial, sans-serif" }}>
+      <div style={styles.header}>
+        <span onClick={() => navigate(-1)} style={styles.backButton}>&lt; Atrás</span>
+        <h1 style={styles.title}>Panamá</h1>
       </div>
 
-      <img
-        src={`http://localhost:3000/uploads/${item.imagen}`}
-        alt={item.nombre}
-        style={{ width: "100%", height: "200px", objectFit: "cover" }}
-      />
+      {item.imagen && (
+        <img
+          src={`http://localhost:3000/uploads/${item.imagen}`}
+          alt={item.nombre}
+          style={styles.image}
+          onError={(e) => (e.currentTarget.src = "http://localhost:3000/uploads/default.png")}
+        />
+      )}
 
-      <div style={{ padding: "1rem" }}>
-        <p style={{ color: "#aaa", margin: 0 }}>Especialidad de la Casa</p>
-        <h2 style={{ margin: "0.2rem 0", color: "#333" }}>{item.nombre}</h2>
-        <p style={{ color: "#666" }}>{item.descripcion}</p>
-
-        <label style={{ display: "block", margin: "0.5rem 0" }}>
-          Término de Cocción
-          <input
-            type="checkbox"
-            checked={terminoCoccion}
-            onChange={() => setTerminoCoccion(!terminoCoccion)}
-            style={{ marginLeft: "0.5rem" }}
-          />
-        </label>
-
-        <label style={{ display: "block", margin: "0.5rem 0" }}>
-          Esparragos
-          <input
-            type="checkbox"
-            checked={esparragos}
-            onChange={() => setEsparragos(!esparragos)}
-            style={{ marginLeft: "0.5rem" }}
-          />
-        </label>
+      <div style={styles.content}>
+        <h2>{item.nombre}</h2>
+        <p>{item.descripcion}</p>
+        <div>
+          <span style={styles.price}>${item.precio.toFixed(2)}</span>
+        </div>
 
         <textarea
+          style={styles.textarea}
           placeholder="Instrucciones especiales"
           value={instrucciones}
           onChange={(e) => setInstrucciones(e.target.value)}
-          style={{ width: "100%", minHeight: "60px", margin: "0.5rem 0", padding: "0.5rem" }}
         />
 
-        <button
-          onClick={handleAgregarOrden}
-          style={{
-            backgroundColor: "#4caf50",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            padding: "0.8rem 1rem",
-            fontSize: "1rem",
-            fontWeight: "bold",
-            cursor: "pointer",
-            width: "100%",
-          }}
-        >
-          Agregar a mi orden
+        <div style={styles.quantityContainer}>
+          <button onClick={() => setCantidad(Math.max(1, cantidad - 1))} style={styles.quantityButton}>-</button>
+          <span style={styles.quantity}>{cantidad}</span>
+          <button onClick={() => setCantidad(cantidad + 1)} style={styles.quantityButton}>+</button>
+        </div>
+
+        <button onClick={handleAgregarOrden} style={styles.addButton}>
+          Agregar {cantidad} al pedido • ${(item.precio * cantidad).toFixed(2)}
         </button>
+
+        {mensaje && <p style={styles.mensaje}>{mensaje}</p>}
       </div>
     </div>
   );
 }
+
+const styles: { [key: string]: React.CSSProperties } = {
+  header: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    background: "#ffffff",
+    padding: "10px 15px",
+    borderBottom: "1px solid #ccc",
+    boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
+  },
+  backButton: {
+    fontSize: "16px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    color: "#333",
+  },
+  title: {
+    fontSize: "20px",
+    fontWeight: "bold",
+    color: "#a52a2a",
+    margin: 0,
+  },
+  image: {
+    width: "100%",
+    height: "300px",
+    objectFit: "cover",
+  },
+  content: {
+    padding: "20px",
+  },
+  price: {
+    fontWeight: "bold",
+    color: "green",
+    fontSize: "18px",
+  },
+  textarea: {
+    width: "100%",
+    margin: "15px 0",
+    padding: "10px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+  },
+  quantityContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "10px",
+    marginBottom: "10px",
+  },
+  quantityButton: {
+    backgroundColor: "#ddd",
+    border: "none",
+    padding: "8px 15px",
+    fontSize: "18px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    borderRadius: "5px",
+  },
+  quantity: {
+    fontSize: "18px",
+    fontWeight: "bold",
+  },
+  addButton: {
+    width: "100%",
+    marginTop: "10px",
+    backgroundColor: "#28a745",
+    color: "white",
+    padding: "12px",
+    border: "none",
+    borderRadius: "5px",
+    fontSize: "16px",
+    cursor: "pointer",
+  },
+  mensaje: {
+    color: "green",
+    textAlign: "center",
+    marginTop: "10px",
+    fontSize: "14px",
+  },
+};

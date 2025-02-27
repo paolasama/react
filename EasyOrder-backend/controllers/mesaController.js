@@ -15,6 +15,9 @@ exports.getMesas = async (req, res) => {
       //   { model: Restaurante, as: "restaurante" },
       //   { model: Sucursal, as: "sucursal" },
       // ],
+      // attributes: ['id', 'numero_mesa', 'capacidad', 'estado', 'activo', 'restaurante_id', 'sucursal_id', 'qr_code']
+      // Si quieres seleccionar solo algunas columnas, usa attributes.
+      // De lo contrario, Sequelize devolverá todas.
     });
     res.status(200).json(mesas);
   } catch (error) {
@@ -32,7 +35,7 @@ exports.getMesaById = async (req, res) => {
     const { id } = req.params;
     const mesa = await Mesa.findByPk(id, {
       // include si necesitas
-      // include: [{ model: Restaurante, as: "restaurante" }, ...]
+      // attributes: ['id', 'numero_mesa', 'capacidad', 'estado', 'activo', 'restaurante_id', 'sucursal_id', 'qr_code']
     });
     if (!mesa) {
       return res.status(404).json({ error: "Mesa no encontrada." });
@@ -46,18 +49,26 @@ exports.getMesaById = async (req, res) => {
 
 /**
  * POST /api/mesas
- * Crea una nueva mesa
+ * Crea una nueva mesa (ahora con qr_code opcional)
  */
 exports.createMesa = async (req, res) => {
   try {
-    const { numeroMesa, capacidad, estado, activo, restauranteId, sucursalId } = req.body;
+    const {
+      numeroMesa,
+      capacidad,
+      estado,
+      activo,
+      restauranteId,
+      sucursalId,
+      qrCode, // <-- campo para la ruta/nombre del QR
+    } = req.body;
 
     // Validaciones mínimas
     if (!numeroMesa || !capacidad || !estado || !restauranteId || !sucursalId) {
       return res.status(400).json({ error: "Faltan campos requeridos." });
     }
 
-    // Opcional: Verificar que existan restaurante y sucursal
+    // (Opcional) Verificar que existan restaurante y sucursal
     const restaurante = await Restaurante.findByPk(restauranteId);
     if (!restaurante) {
       return res.status(404).json({ error: "Restaurante no encontrado." });
@@ -75,6 +86,7 @@ exports.createMesa = async (req, res) => {
       activo: activo ?? true,
       restaurante_id: restauranteId,
       sucursal_id: sucursalId,
+      qr_code: qrCode ?? null, // Asigna el valor a la columna qr_code
     });
 
     res.status(201).json({
@@ -97,12 +109,20 @@ exports.createMesa = async (req, res) => {
 
 /**
  * PUT /api/mesas/:id
- * Actualiza los campos de una mesa existente
+ * Actualiza los campos de una mesa existente, incluyendo qr_code
  */
 exports.updateMesa = async (req, res) => {
   try {
     const { id } = req.params;
-    const { numeroMesa, capacidad, estado, activo, restauranteId, sucursalId } = req.body;
+    const {
+      numeroMesa,
+      capacidad,
+      estado,
+      activo,
+      restauranteId,
+      sucursalId,
+      qrCode, // <-- campo opcional para actualizar el QR
+    } = req.body;
 
     // Buscar la mesa
     const mesa = await Mesa.findByPk(id);
@@ -110,7 +130,7 @@ exports.updateMesa = async (req, res) => {
       return res.status(404).json({ error: "Mesa no encontrada." });
     }
 
-    // Opcional: Verificar si restaurante y sucursal existen (si se van a cambiar)
+    // (Opcional) Verificar si restaurante y sucursal existen (si se van a cambiar)
     if (restauranteId) {
       const restaurante = await Restaurante.findByPk(restauranteId);
       if (!restaurante) {
@@ -126,12 +146,13 @@ exports.updateMesa = async (req, res) => {
 
     // Actualizar campos
     await mesa.update({
-      numero_mesa: numeroMesa,
-      capacidad,
-      estado,
-      activo,
-      restaurante_id: restauranteId,
-      sucursal_id: sucursalId,
+      numero_mesa: numeroMesa ?? mesa.numero_mesa,
+      capacidad: capacidad ?? mesa.capacidad,
+      estado: estado ?? mesa.estado,
+      activo: activo ?? mesa.activo,
+      restaurante_id: restauranteId ?? mesa.restaurante_id,
+      sucursal_id: sucursalId ?? mesa.sucursal_id,
+      qr_code: qrCode ?? mesa.qr_code, // actualiza qr_code si se envía
     });
 
     res.json({ mensaje: "Mesa actualizada correctamente.", mesa });
