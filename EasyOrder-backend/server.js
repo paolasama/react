@@ -1,4 +1,4 @@
-   // EasyOrder-backend/server.js
+// EasyOrder-backend/server.js
    require('dotenv').config();
    const express = require('express');
    const path = require('path');
@@ -87,8 +87,21 @@
        await syncModels();
        await seedDatabase();
        const PORT = process.env.PORT || 3000;
-       app.listen(PORT, () => {
+       
+       // Add error handling for port in use
+       const server = app.listen(PORT, () => {
          console.log(`Servidor escuchando en el puerto ${PORT}`);
+       }).on('error', (err) => {
+         if (err.code === 'EADDRINUSE') {
+           console.log(`Puerto ${PORT} está en uso. Intentando con puerto ${PORT + 1}`);
+           server.close();
+           app.listen(PORT + 1, () => {
+             console.log(`Servidor escuchando en el puerto ${PORT + 1}`);
+           });
+         } else {
+           console.error("Error durante el arranque:", err);
+           process.exit(1);
+         }
        });
      } catch (error) {
        console.error("Error durante el arranque:", error);

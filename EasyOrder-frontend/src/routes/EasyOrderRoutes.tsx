@@ -26,6 +26,9 @@ import CarritoScreen from '../components/Cliente/Platillos/CarritoScreen';
 import ConfirmacionScreen from '../components/Cliente/Platillos/ConfirmacionScreen';
 import PagoexitosoScreen from '../components/Cliente/Platillos/PagoexitosoScreen';
 import QrScreen from '../components/Cliente/InformacionPlatillo/QrScreen';
+import LadoCocinero from '../components/Cliente/PedidoWeb/ladococinero';
+import MapaDeMesas from '../components/Cliente/PedidoWeb/mapademesas';
+import Notificaciones from '../components/Cliente/PedidoWeb/notificacion';
 
 // 🚀 Definición del componente EasyOrderRoutes para manejar las rutas de la aplicación
 const EasyOrderRoutes: FunctionComponent = () => {
@@ -56,6 +59,10 @@ const EasyOrderRoutes: FunctionComponent = () => {
                 <Route path="/meseroexito" element={<MeseroExitoScreen />} />
                 <Route path="/pagar" element={<PagarScreen />} />
                 <Route path="/pago-exitoso" element={<PagoexitosoScreen />} />
+                <Route path="/cocinero" element={<LadoCocinero />} />
+                <Route path="/mapacocina" element={<MapaDeMesas />} />
+                <Route path="/notificacion" element={<Notificaciones />} />
+
                 
                 {/* Ruta para iniciar sesión */}
                 <Route path="/login" element={<LoginForm />} />

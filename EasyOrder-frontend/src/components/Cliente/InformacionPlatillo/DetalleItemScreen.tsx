@@ -16,7 +16,7 @@ interface OrdenItem {
   cantidad: number;
   instrucciones: string;
   precio: number;
-  imagen?: string; // Agregamos la propiedad imagen
+  imagen?: string; // Se incluye la propiedad imagen
 }
 
 export default function DetalleItemScreen() {
@@ -51,6 +51,7 @@ export default function DetalleItemScreen() {
     return <p style={{ textAlign: "center", color: "red" }}>Error al cargar el ítem</p>;
 
   const handleAgregarOrden = () => {
+    // 1. Construimos el nuevo ítem de la orden
     const nuevaOrden: OrdenItem = {
       itemId: item.id,
       nombre: item.nombre,
@@ -60,23 +61,46 @@ export default function DetalleItemScreen() {
       imagen: item.imagen, // Se incluye la imagen
     };
 
-    // Obtener carrito del localStorage
+    // 2. Leer el carrito desde localStorage
     const carritoActual = localStorage.getItem("carrito");
-    const carritoParseado: OrdenItem[] = carritoActual ? JSON.parse(carritoActual) : [];
 
-    // Verificar si el producto ya está en el carrito para actualizar cantidad
-    const indexExistente = carritoParseado.findIndex((producto) => producto.itemId === item.id);
+    // 3. Convertir a array (o array vacío si no es válido)
+    let carritoParseado: OrdenItem[] = [];
+    if (carritoActual) {
+      try {
+        const data = JSON.parse(carritoActual);
+        if (Array.isArray(data)) {
+          carritoParseado = data; // Si es array, lo usamos
+        } else {
+          // Si no es un array, forzamos a un array vacío
+          carritoParseado = [];
+        }
+      } catch {
+        // Eliminamos el parámetro error para no usarlo
+        // y evitamos la advertencia "'error' is defined but never used"
+        carritoParseado = [];
+      }
+    }
+
+    // 4. Buscar si el producto ya existe en el carrito
+    const indexExistente = carritoParseado.findIndex(
+      (producto) => producto.itemId === item.id
+    );
     if (indexExistente !== -1) {
+      // Si existe, incrementamos la cantidad
       carritoParseado[indexExistente].cantidad += cantidad;
     } else {
+      // Si no existe, lo agregamos
       carritoParseado.push(nuevaOrden);
     }
 
-    // Guardar carrito actualizado en localStorage
+    // 5. Guardar carrito actualizado en localStorage
     localStorage.setItem("carrito", JSON.stringify(carritoParseado));
 
+    // 6. Mensaje de confirmación
     setMensaje(`Se agregó ${cantidad}x ${item.nombre} al pedido.`);
 
+    // 7. Redirigir después de 2 segundos
     setTimeout(() => {
       setMensaje("");
       navigate("/exito"); // Redirige a la página de éxito
@@ -84,9 +108,13 @@ export default function DetalleItemScreen() {
   };
 
   return (
-    <div style={{ width: "100%", maxWidth: "500px", margin: "0 auto", fontFamily: "Arial, sans-serif" }}>
+    <div
+      style={{ width: "100%", maxWidth: "500px", margin: "0 auto", fontFamily: "Arial, sans-serif" }}
+    >
       <div style={styles.header}>
-        <span onClick={() => navigate(-1)} style={styles.backButton}>&lt; Atrás</span>
+        <span onClick={() => navigate(-1)} style={styles.backButton}>
+          &lt; Atrás
+        </span>
         <h1 style={styles.title}>Panamá</h1>
       </div>
 
@@ -95,7 +123,9 @@ export default function DetalleItemScreen() {
           src={`http://localhost:3000/uploads/${item.imagen}`}
           alt={item.nombre}
           style={styles.image}
-          onError={(e) => (e.currentTarget.src = "http://localhost:3000/uploads/default.png")}
+          onError={(e) =>
+            (e.currentTarget.src = "http://localhost:3000/uploads/default.png")
+          }
         />
       )}
 
@@ -114,9 +144,19 @@ export default function DetalleItemScreen() {
         />
 
         <div style={styles.quantityContainer}>
-          <button onClick={() => setCantidad(Math.max(1, cantidad - 1))} style={styles.quantityButton}>-</button>
+          <button
+            onClick={() => setCantidad(Math.max(1, cantidad - 1))}
+            style={styles.quantityButton}
+          >
+            -
+          </button>
           <span style={styles.quantity}>{cantidad}</span>
-          <button onClick={() => setCantidad(cantidad + 1)} style={styles.quantityButton}>+</button>
+          <button
+            onClick={() => setCantidad(cantidad + 1)}
+            style={styles.quantityButton}
+          >
+            +
+          </button>
         </div>
 
         <button onClick={handleAgregarOrden} style={styles.addButton}>
